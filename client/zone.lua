@@ -30,11 +30,12 @@ function zone.configurePed(action, data)
             SetPedCanPlayAmbientAnims(pedEntity, false)
 
             vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].pedEntity = pedEntity
+            vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].pedTargetId = Target.addPed(pedEntity, data)
         end
-
-        -- TODO: add target
     elseif action == "exit" then
-        -- TODO: remove target
+        local pointData = vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex]
+
+        Target.removePed(pointData.pedEntity, pointData.pedTargetId)
     end
 end
 
