@@ -70,7 +70,7 @@ local function onVehicleShopBuyPointInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local buyPoint = vehicleShopData.BuyPoints[data.buyPointIndex]
 
-    if buyPoint.Marker then
+    if buyPoint.Marker and (not buyPoint.Marker.DrawDistance or (data.currentDistance <= buyPoint.Marker.DrawDistance)) then
         DrawMarker(
             buyPoint.Marker.Type or 1, --[[type]]
             buyPoint.Marker.Coords.x or buyPoint.Coords.x, --[[posX]]

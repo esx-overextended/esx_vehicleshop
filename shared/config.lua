@@ -16,14 +16,15 @@ Config.VehicleShops = {
         },
         BuyPoints = {
             {
-                Model = nil,
+                Model = nil, -- optional
                 Coords = vector4(-33.0, -1103.79, 25.41, 76.53),
-                Distance = 20.0,
+                Distance = 30.0,
                 Marker = {
-                    Type = 36,
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },
-                    Color = { r = 120, g = 120, b = 240, a = 100 },
-                    Coords = vector3(-33.0, -1103.79, 27.41),
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-33.0, -1103.79, 27.41),       -- optional
+                    DrawDistance = 10.0                             -- optional
                 }
             },
         }
