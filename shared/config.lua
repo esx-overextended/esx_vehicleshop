@@ -16,13 +16,14 @@ Config.VehicleShops = {
         },
         BuyPoints = {
             {
-                Model = nil, -- nil, false, or model (if nil it will uses the Config.DefaultPed, if false, it won't spawn any ped for this point)
+                Model = nil,
                 Coords = vector4(-33.0, -1103.79, 25.41, 76.53),
                 Distance = 20.0,
                 Marker = {
                     Type = 36,
-                    Size = { x = 1.5, y = 1.5, z = 1.0 },
-                    Color = { r = 255, g = 255, b = 255 }
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },
+                    Color = { r = 120, g = 120, b = 240, a = 100 },
+                    Coords = vector3(-33.0, -1103.79, 27.41),
                 }
             },
         }
