@@ -8,8 +8,10 @@ function Target.addPed(entity, data)
             name = optionId,
             label = "Open Vehicle Shop",
             icon = "fa-solid fa-shop",
-            event = nil, -- TODO
-            distance = 4
+            distance = 4,
+            onSelect = function()
+                OpenShopMenu(data)
+            end
         }
     })
 

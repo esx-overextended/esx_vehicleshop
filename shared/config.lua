@@ -6,6 +6,7 @@ Config.DefaultPed = `A_M_Y_Business_01`
 
 Config.VehicleShops = {
     ["pdm"] = {
+        -- Categories = { "super" },
         Label = "Premium Deluxe Motorsport",
         Blip = {
             Active = true,
