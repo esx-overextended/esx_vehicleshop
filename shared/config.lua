@@ -28,6 +28,18 @@ Config.VehicleShops = {
                     DrawDistance = 10.0                             -- optional
                 }
             },
+            {
+                -- Model = `A_M_Y_Business_03`, -- optional
+                Coords = vector4(-56.58, -1098.67, 25.41, 11.34),
+                Distance = 30.0,
+                Marker = {
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-56.58, -1098.67, 27.41),      -- optional
+                    DrawDistance = 10.0                             -- optional
+                }
+            },
         }
     }
 }
