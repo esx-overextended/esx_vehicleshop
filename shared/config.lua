@@ -4,6 +4,8 @@ Config.Debug = true
 
 Config.DefaultPed = `A_M_Y_Business_01`
 
+Config.DefaultVehiclePreviewCoords = vector4(-75.21, -819.1, 325.17, 317.48)
+
 Config.VehicleShops = {
     ["pdm"] = {
         -- Categories = { "super" },
@@ -32,7 +34,7 @@ Config.VehicleShops = {
                 -- Model = `A_M_Y_Business_03`, -- optional
                 Coords = vector4(-56.58, -1098.67, 25.41, 11.34),
                 Distance = 30.0,
-                Marker = {
+                Marker = {                                          -- optional
                     Type = 36,                                      -- optional
                     Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
                     Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
@@ -40,6 +42,7 @@ Config.VehicleShops = {
                     DrawDistance = 10.0                             -- optional
                 }
             },
-        }
+        },
+        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0) -- optional
     }
 }

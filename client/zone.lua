@@ -1,7 +1,6 @@
 local zone, vehicleShopZones = {}, {}
 
 function zone.configurePed(action, data)
-    print(data.vehicleShopKey, data.buyPointIndex)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
     local pointData = vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex]
