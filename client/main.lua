@@ -81,6 +81,24 @@ local function getAccountIcon(accountName)
     return "fa-solid fa-money-check-dollar"
 end
 
+---@param hex string
+---@return number, number, number
+local function hexToRGB(hex)
+    hex = hex:gsub("#", "")
+    local r = tonumber(hex:sub(1, 2), 16) or 0
+    local g = tonumber(hex:sub(3, 4), 16) or 0
+    local b = tonumber(hex:sub(5, 6), 16) or 0
+    return r, g, b
+end
+
+---@param r number
+---@param g number
+---@param b number
+---@return string
+local function rgbToHex(r, g, b)
+    return string.format("#%02X%02X%02X", r, g, b)
+end
+
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
@@ -178,6 +196,17 @@ function OpenShopMenu(data)
             onClose = function() lib.showMenu("esx_vehicleshops:shopMenu", selectedIndex) end
         }, function(_selectedIndex)
             if _selectedIndex == 1 then
+                local vehicleCustomPrimaryColor = GetIsVehiclePrimaryColourCustom(spawnedVehicle) and rgbToHex(GetVehicleCustomPrimaryColour(spawnedVehicle)) or nil
+                local vehicleCustomSecondaryColor = GetIsVehicleSecondaryColourCustom(spawnedVehicle) and rgbToHex(GetVehicleCustomSecondaryColour(spawnedVehicle)) or nil
+
+                local input = lib.inputDialog(selectedVehicleLabel, {
+                    { type = "color", label = "Primary Color",   default = vehicleCustomPrimaryColor,   format = "hex", required = true },
+                    { type = "color", label = "Secondary Color", default = vehicleCustomSecondaryColor, format = "hex", required = true }
+                })
+
+                if input?[1] then SetVehicleCustomPrimaryColour(spawnedVehicle, hexToRGB(input[1])) end
+                if input?[2] then SetVehicleCustomSecondaryColour(spawnedVehicle, hexToRGB(input[2])) end
+
                 return lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
             end
 
