@@ -57,6 +57,7 @@ lib.callback.register("esx_vehicleshops:generateShopMenuBuyingOptions", function
                 options[optionsCount] = {
                     label = vehicle.name,
                     value = vehicle.model,
+                    price = vehicle.price,
                     description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price))
                 }
             end

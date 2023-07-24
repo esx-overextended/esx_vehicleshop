@@ -34,7 +34,7 @@ end
 ---@param state boolean
 ---@param text? string
 local function spinner(state, text)
-    if not state then return  BusyspinnerOff() end
+    if not state then return BusyspinnerOff() end
     if not text then text = "Loading..." end
 
     AddTextEntry(text, text)
@@ -69,6 +69,18 @@ local function spawnPreviewVehicle(vehicleModel, atCoords)
     return vehicleEntity
 end
 
+---@param accountName string
+---@return string
+local function getAccountIcon(accountName)
+    if accountName == "money" then
+        return "fa-solid fa-money-bill"
+    elseif accountName == "bank" then
+        return "fa-solid fa-building-columns"
+    end
+
+    return "fa-solid fa-money-check-dollar"
+end
+
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
@@ -88,8 +100,8 @@ function OpenShopMenu(data)
             DisableAllControlActions(0)
             DisableAllControlActions(1)
             DisableAllControlActions(2)
-            EnableControlAction(0, 1, true) -- Mouse look
-            EnableControlAction(0, 2, true) -- Mouse look
+            EnableControlAction(0, 1, true)  -- Mouse look
+            EnableControlAction(0, 2, true)  -- Mouse look
             EnableControlAction(0, 71, true) -- W (for accelaration and tesing vehicles' engine sound)
             Wait(0)
         end
@@ -118,6 +130,63 @@ function OpenShopMenu(data)
         isSpawning = false
     end
 
+    local function onMenuSelect(selectedIndex, selectedScrollIndex)
+        while isSpawning do Wait(0) end
+
+        local selectedVehicle = menuOptions[selectedIndex]?.values?[selectedScrollIndex]
+        local selectedVehicleModel, selectedVehicleLabel = selectedVehicle?.value, selectedVehicle?.label
+
+        if not spawnedVehicle then
+            lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Cannot load vehicle (%s)!"):format(selectedVehicleLabel), type = "error" })
+            return lib.showMenu("esx_vehicleshops:shopMenu", selectedIndex)
+        end
+
+        local accounts = { ["bank"] = true, ["money"] = true }
+        local options = { {
+            label = "Vehicle Color",
+        } }
+
+        for i = 1, #ESX.PlayerData.accounts do
+            local accountName = ESX.PlayerData.accounts[i]
+
+            if accounts[accountName?.name] then
+                accounts[accountName.name] = i
+            end
+        end
+
+        for _, accountIndex in pairs(accounts) do
+            local account = ESX.PlayerData.accounts[accountIndex]
+
+            if not account then goto skipLoop end
+
+            local canUseThisAccount = account.money >= selectedVehicle.price
+
+            options[#options + 1] = {
+                label = ("Purchase with %s"):format(account.label),
+                icon = getAccountIcon(account.name),
+                iconColor = canUseThisAccount and "green" or "red",
+                disabled = not canUseThisAccount
+            }
+
+            ::skipLoop::
+        end
+
+        lib.registerMenu({
+            id = "esx_vehicleshops:shopMenuBuyConfirmation",
+            title = selectedVehicleLabel,
+            options = options,
+            onClose = function() lib.showMenu("esx_vehicleshops:shopMenu", selectedIndex) end
+        }, function(_selectedIndex)
+            if _selectedIndex == 1 then
+                return lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
+            end
+
+            -- TODO: Purchase
+        end)
+
+        lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
+    end
+
     lib.registerMenu({
         id = "esx_vehicleshops:shopMenu",
         title = vehicleShopData?.Label,
@@ -131,8 +200,9 @@ function OpenShopMenu(data)
             freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
 
             insideShop = false
+            onMenuChange = nil ---@diagnostic disable-line: cast-local-type
         end
-    })
+    }, onMenuSelect)
 
     lib.showMenu("esx_vehicleshops:shopMenu")
 end
