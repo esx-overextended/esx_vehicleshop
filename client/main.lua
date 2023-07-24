@@ -31,6 +31,44 @@ local function freezeEntity(state, entity, atCoords)
     end
 end
 
+---@param state boolean
+---@param text? string
+local function spinner(state, text)
+    if not state then return  BusyspinnerOff() end
+    if not text then text = "Loading..." end
+
+    AddTextEntry(text, text)
+    BeginTextCommandBusyspinnerOn(text)
+    EndTextCommandBusyspinnerOn(4)
+end
+
+---@param entity number
+---@return boolean
+local function deleteEntity(entity)
+    if not entity then return false end
+
+    while DoesEntityExist(entity) do
+        DeleteEntity(entity)
+        Wait(0)
+    end
+
+    return true
+end
+
+---@param vehicleModel string | number
+---@param atCoords any
+---@return number
+local function spawnPreviewVehicle(vehicleModel, atCoords)
+    vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel
+    local vehicleEntity = CreateVehicle(vehicleModel, atCoords.x, atCoords.y, atCoords.z, atCoords.w, false, false)
+
+    SetVehicleNeedsToBeHotwired(vehicleEntity, false)
+    SetVehRadioStation(vehicleEntity, "OFF")
+    freezeEntity(true, vehicleEntity, atCoords)
+
+    return vehicleEntity
+end
+
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
@@ -41,12 +79,12 @@ function OpenShopMenu(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local collisionCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
     local pedCoordsBeforeOpeningShopMenu = cache.coords
-    local isShopRestrictionEnabled = true
+    local insideShop, isSpawning, spawnedVehicle = true, false, nil
 
     freezeEntity(true, cache.ped, collisionCoords)
 
     CreateThread(function()
-        while isShopRestrictionEnabled do
+        while insideShop do
             DisableAllControlActions(0)
             DisableAllControlActions(1)
             DisableAllControlActions(2)
@@ -57,16 +95,42 @@ function OpenShopMenu(data)
         end
     end)
 
+    local function onMenuChange(selectedIndex, selectedScrollIndex)
+        while isSpawning do Wait(0) end
+
+        isSpawning = true
+        local selectedVehicle = menuOptions[selectedIndex]?.values?[selectedScrollIndex]
+        local selectedVehicleModel, selectedVehicleLabel = selectedVehicle?.value, selectedVehicle?.label
+
+        spinner(true, ("Loading %s..."):format(selectedVehicleLabel))
+
+        local isModelLoaded = HasModelLoaded(lib.requestModel(selectedVehicleModel, 1000000))
+
+        spinner(false)
+        deleteEntity(spawnedVehicle)
+
+        if isModelLoaded then
+            spawnedVehicle = spawnPreviewVehicle(selectedVehicleModel, collisionCoords)
+
+            SetPedIntoVehicle(cache.ped, spawnedVehicle, -1)
+        end
+
+        isSpawning = false
+    end
+
     lib.registerMenu({
         id = "esx_vehicleshops:shopMenu",
         title = vehicleShopData?.Label,
         options = menuOptions,
-        onSideScroll = function(selected, scrollIndex, args) end,
-        onSelected = function(selected, scrollIndex, args)
-        end,
+        onSideScroll = onMenuChange,
+        onSelected = onMenuChange,
         onClose = function()
+            while isSpawning do Wait(0) end
+
+            deleteEntity(spawnedVehicle)
             freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
-            isShopRestrictionEnabled = false
+
+            insideShop = false
         end
     })
 
