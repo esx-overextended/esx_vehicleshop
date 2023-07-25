@@ -25,7 +25,7 @@ local function freezeEntity(state, entity, atCoords)
         end
 
         while not hasCollisionLoadedAroundEntity(entity) do
-            RequestCollisionAtCoord(collisionCoords.x, collisionCoords.y, collisionCoords.z)
+            RequestCollisionAtCoord(atCoords.x, atCoords.y, atCoords.z)
             Wait(100)
         end
     end
@@ -125,7 +125,9 @@ function OpenShopMenu(data)
         end
     end)
 
-    local function onMenuChange(selectedIndex, selectedScrollIndex)
+    local onMenuClose, onMenuChange, onMenuSelect
+
+    function onMenuChange(selectedIndex, selectedScrollIndex)
         while isSpawning do Wait(0) end
 
         isSpawning = true
@@ -148,7 +150,7 @@ function OpenShopMenu(data)
         isSpawning = false
     end
 
-    local function onMenuSelect(selectedIndex, selectedScrollIndex)
+    function onMenuSelect(selectedIndex, selectedScrollIndex)
         while isSpawning do Wait(0) end
 
         local selectedVehicle = menuOptions[selectedIndex]?.values?[selectedScrollIndex]
@@ -219,7 +221,7 @@ function OpenShopMenu(data)
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel), type = "error" })
             end
 
-            local result = lib.callback.await("esx_vehicleshops:purchaseVehicle", 1000, {
+            local vehicleNetId = lib.callback.await("esx_vehicleshops:purchaseVehicle", 1000, {
                 vehicleIndex      = selectedScrollIndex,
                 vehicleShopKey    = data.vehicleShopKey,
                 vehicleCategory   = selectedVehicle.category,
@@ -227,12 +229,52 @@ function OpenShopMenu(data)
                 vehicleProperties = ESX.Game.GetVehicleProperties(spawnedVehicle)
             })
 
-            if not result then
+            if not vehicleNetId then
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("The purchase of %s could NOT be completed..."):format(selectedVehicleLabel), type = "error" })
+            end
+
+
+            for _ = 1, 2 do
+                lib.hideMenu(true)
+                Wait(10)
+            end
+
+            freezeEntity(true, cache.ped, vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase)
+            freezeEntity(false)
+
+            local doesNetIdExist, timeout = false, 0
+
+            while not doesNetIdExist and timeout < 1000 do
+                doesNetIdExist = NetworkDoesEntityExistWithNetworkId(vehicleNetId)
+                timeout += 1
+                Wait(0)
+            end
+
+            local vehicleEntity = doesNetIdExist and NetworkGetEntityFromNetworkId(vehicleNetId)
+
+            if not vehicleEntity or vehicleEntity == 0 then return end
+
+            for _ = 1, 50 do
+                Wait(0)
+                SetPedIntoVehicle(cache.ped, vehicleEntity, -1)
+
+                if GetVehiclePedIsIn(cache.ped, false) == vehicleEntity then
+                    break
+                end
             end
         end)
 
         lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
+    end
+
+    function onMenuClose()
+        while isSpawning do Wait(0) end
+
+        deleteEntity(spawnedVehicle)
+        freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
+
+        insideShop = false
+        onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
     end
 
     lib.registerMenu({
@@ -241,15 +283,7 @@ function OpenShopMenu(data)
         options = menuOptions,
         onSideScroll = onMenuChange,
         onSelected = onMenuChange,
-        onClose = function()
-            while isSpawning do Wait(0) end
-
-            deleteEntity(spawnedVehicle)
-            freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
-
-            insideShop = false
-            onMenuChange = nil ---@diagnostic disable-line: cast-local-type
-        end
+        onClose = onMenuClose
     }, onMenuSelect)
 
     lib.showMenu("esx_vehicleshops:shopMenu")

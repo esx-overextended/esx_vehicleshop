@@ -73,16 +73,5 @@ lib.callback.register("esx_vehicleshops:purchaseVehicle", function(source, data)
 
     if not xVehicle then return ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true) end
 
-    local playerPed = GetPlayerPed(source)
-
-    for _ = 1, 50 do
-        Wait(0)
-        SetPedIntoVehicle(playerPed, xVehicle.entity, -1)
-
-        if GetVehiclePedIsIn(playerPed, false) == xVehicle.entity then
-            break
-        end
-    end
-
-    return true
+    return xVehicle.netId
 end)
