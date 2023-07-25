@@ -5,6 +5,7 @@ Config.Debug = true
 Config.DefaultPed = `A_M_Y_Business_01`
 
 Config.DefaultVehiclePreviewCoords = vector4(-75.21, -819.1, 325.17, 317.48)
+Config.DefaultVehicleSpawnCoordsAfterPurchase = vector4(133.25, -3210.30, 5.43, 272.12)
 
 Config.VehicleShops = {
     ["pdm"] = {
@@ -43,6 +44,7 @@ Config.VehicleShops = {
                 }
             },
         },
-        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0) -- optional
+        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0), -- optional
+        -- VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional
     }
 }

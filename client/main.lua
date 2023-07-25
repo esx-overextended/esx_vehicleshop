@@ -102,7 +102,7 @@ end
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
-    local menuOptions = lib.callback.await("esx_vehicleshops:generateShopMenuBuyingOptions", false, data)
+    local menuOptions = lib.callback.await("esx_vehicleshops:generateShopMenu", false, data)
 
     if type(menuOptions) ~= "table" or not next(menuOptions) then return end
 
@@ -152,7 +152,7 @@ function OpenShopMenu(data)
         while isSpawning do Wait(0) end
 
         local selectedVehicle = menuOptions[selectedIndex]?.values?[selectedScrollIndex]
-        local selectedVehicleModel, selectedVehicleLabel = selectedVehicle?.value, selectedVehicle?.label
+        local selectedVehicleLabel = selectedVehicle?.label
 
         if not spawnedVehicle then
             lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Cannot load vehicle (%s)!"):format(selectedVehicleLabel), type = "error" })
@@ -183,7 +183,10 @@ function OpenShopMenu(data)
                 label = ("Purchase with %s"):format(account.label),
                 icon = getAccountIcon(account.name),
                 iconColor = canUseThisAccount and "green" or "red",
-                disabled = not canUseThisAccount
+                close = false,
+                accountName = account.name,
+                accountLabel = account.label,
+                canUseThisAccount = canUseThisAccount
             }
 
             ::skipLoop::
@@ -210,7 +213,23 @@ function OpenShopMenu(data)
                 return lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
             end
 
-            -- TODO: Purchase
+            local optionData = options[_selectedIndex]
+
+            if not optionData?.canUseThisAccount then
+                return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel), type = "error" })
+            end
+
+            local result = lib.callback.await("esx_vehicleshops:purchaseVehicle", 1000, {
+                vehicleIndex      = selectedScrollIndex,
+                vehicleShopKey    = data.vehicleShopKey,
+                vehicleCategory   = selectedVehicle.category,
+                purchaseAccount   = optionData?.accountName,
+                vehicleProperties = ESX.Game.GetVehicleProperties(spawnedVehicle)
+            })
+
+            if not result then
+                return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("The purchase of %s could NOT be completed..."):format(selectedVehicleLabel), type = "error" })
+            end
         end)
 
         lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
