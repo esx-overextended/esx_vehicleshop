@@ -114,6 +114,8 @@ function OpenShopMenu(data)
     freezeEntity(true, cache.ped, collisionCoords)
 
     CreateThread(function()
+        SetEntityVisible(cache.ped, false, false)
+
         while insideShop do
             DisableAllControlActions(0)
             DisableAllControlActions(1)
@@ -121,8 +123,13 @@ function OpenShopMenu(data)
             EnableControlAction(0, 1, true)  -- Mouse look
             EnableControlAction(0, 2, true)  -- Mouse look
             EnableControlAction(0, 71, true) -- W (for accelaration and tesing vehicles' engine sound)
+
+            SetLocalPlayerVisibleLocally(true)
+
             Wait(0)
         end
+
+        SetEntityVisible(cache.ped, true, false)
     end)
 
     local onMenuClose, onMenuChange, onMenuSelect
