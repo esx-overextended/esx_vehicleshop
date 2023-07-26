@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Debug = true
+Config.Debug = false
 
 Config.DefaultPed = `A_M_Y_Business_01`
 
@@ -9,9 +9,9 @@ Config.DefaultVehicleSpawnCoordsAfterPurchase = vector4(133.25, -3210.30, 5.43, 
 
 Config.VehicleShops = {
     ["pdm"] = {
-        -- Categories = { "super" },
+        -- Categories = { "super" }, -- optional
         Label = "Premium Deluxe Motorsport",
-        Blip = {
+        Blip = { -- optional
             Active = true,
             Coords = vector3(-46.08, -1098.30, 26.4),
             Type = 326,
@@ -32,7 +32,7 @@ Config.VehicleShops = {
                 }
             },
             {
-                -- Model = `A_M_Y_Business_03`, -- optional
+                Model = `A_M_Y_Business_03`, -- optional
                 Coords = vector4(-56.58, -1098.67, 25.41, 11.34),
                 Distance = 30.0,
                 Marker = {                                          -- optional
@@ -44,7 +44,7 @@ Config.VehicleShops = {
                 }
             },
         },
-        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0), -- optional
-        -- VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional
+        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0),           -- optional
+        VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional
     }
 }

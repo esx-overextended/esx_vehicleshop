@@ -1,5 +1,26 @@
 local zone, vehicleShopZones = {}, {}
 
+local function createBlip(vehicleShopKey)
+    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+
+    if not vehicleShopData or not vehicleShopData.Blip or not vehicleShopData.Blip.Active then return end
+
+    local blipData = vehicleShopData.Blip
+    local blipCoords = blipData.Coords
+    local blipName = ("vehicleshop_%s"):format(vehicleShopKey)
+    local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
+
+    SetBlipSprite(blip, blipData.Type)
+    SetBlipScale(blip, blipData.Size)
+    SetBlipColour(blip, blipData.Color)
+    SetBlipAsShortRange(blip, true)
+    AddTextEntry(blipName, vehicleShopData.Label)
+    BeginTextCommandSetBlipName(blipName)
+    EndTextCommandSetBlipName(blip)
+
+    return blip
+end
+
 function zone.configurePed(action, data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
@@ -103,7 +124,7 @@ local function setupVehicleShop(vehicleShopKey)
 
     if type(vehicleShopData?.BuyPoints) ~= "table" then return end
 
-    vehicleShopZones[vehicleShopKey] = { buyPoints = {} }
+    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), buyPoints = {} }
 
     for i = 1, #vehicleShopData.BuyPoints do
         local buyPointData = vehicleShopData.BuyPoints[i]
