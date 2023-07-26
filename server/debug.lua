@@ -20,6 +20,8 @@ local function refreshVehiclesName()
 
     if not MySQL.transaction.await(queries) then return ESX.Trace("Could ^1NOT^7 refresh database vehicles name...", "error", true) end
 
+    RefreshVehiclesAndCategories()
+
     ESX.Trace("Refreshed database vehicles name.", "info", true)
 end
 
