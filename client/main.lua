@@ -295,3 +295,8 @@ function OpenShopMenu(data)
 
     lib.showMenu("esx_vehicleshops:shopMenu")
 end
+
+-- leave for backward-compatibility with legacy esx_vehicleshop and resources that use its export call
+exports("GeneratePlate", function()
+    return ESX.TriggerServerCallback("esx:generatePlate")
+end)
