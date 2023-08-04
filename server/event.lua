@@ -1,5 +1,5 @@
-lib.callback.register("esx_vehicleshops:generateShopMenu", function(source, data)
-    if not data?.vehicleShopKey or not data?.buyPointIndex or not data?.currentDistance then return end
+ESX.RegisterServerCallback("esx_vehicleshops:generateShopMenu", function(source, cb, data)
+    if not data?.vehicleShopKey or not data?.buyPointIndex or not data?.currentDistance then return cb() end
 
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
@@ -8,7 +8,8 @@ lib.callback.register("esx_vehicleshops:generateShopMenu", function(source, data
     local distanceToBuyPoint = buyPointCoords and #(vector3(buyPointCoords.x, buyPointCoords.y, buyPointCoords.z) - playerCoords)
 
     if not distanceToBuyPoint or math.floor(distanceToBuyPoint) ~= math.floor(data.currentDistance) then
-        return ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.buyPointIndex, data.currentDistance, distanceToBuyPoint), "error", true)
+        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.buyPointIndex, data.currentDistance, distanceToBuyPoint), "error", true)
+        return cb()
     end
 
     local menuOptions, menuOptionsCount = {}, 0
@@ -43,24 +44,30 @@ lib.callback.register("esx_vehicleshops:generateShopMenu", function(source, data
         end
     end
 
-    return menuOptions
+    return cb(menuOptions)
 end)
 
-lib.callback.register("esx_vehicleshops:purchaseVehicle", function(source, data)
+ESX.RegisterServerCallback("esx_vehicleshops:purchaseVehicle", function(source, cb, data)
     local xPlayer = ESX.GetPlayerFromId(source)
 
-    if not xPlayer or not data?.vehicleIndex or not data?.vehicleShopKey or not data?.vehicleCategory or not data?.purchaseAccount or not data?.vehicleProperties then return end
+    if not xPlayer or not data?.vehicleIndex or not data?.vehicleShopKey or not data?.vehicleCategory or not data?.purchaseAccount or not data?.vehicleProperties then return cb() end
 
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local playerCoords = xPlayer.getCoords()
     local shopPreviewCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
 
-    if #(vector3(playerCoords.x, playerCoords.y, playerCoords.z) - vector3(shopPreviewCoords.x, shopPreviewCoords.y, shopPreviewCoords.z)) > 3 then return CheatDetected(xPlayer.source) end
+    if #(vector3(playerCoords.x, playerCoords.y, playerCoords.z) - vector3(shopPreviewCoords.x, shopPreviewCoords.y, shopPreviewCoords.z)) > 3 then
+        CheatDetected(xPlayer.source)
+        return cb()
+    end
 
     local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
     local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex]
 
-    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then CheatDetected(xPlayer.source) end
+    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then
+        CheatDetected(xPlayer.source)
+        return cb()
+    end
 
     xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, ("Purchase of vehicle (%s) from %s"):format(vehicleData.name, vehicleShopData.Label))
 
@@ -71,7 +78,10 @@ lib.callback.register("esx_vehicleshops:purchaseVehicle", function(source, data)
         properties = data.vehicleProperties
     }, spawnCoords, spawnCoords.w)
 
-    if not xVehicle then return ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true) end
+    if not xVehicle then
+        ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true)
+        return cb()
+    end
 
-    return xVehicle.netId
+    return cb(xVehicle.netId)
 end)

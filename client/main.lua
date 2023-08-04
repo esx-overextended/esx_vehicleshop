@@ -102,7 +102,7 @@ end
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
-    local menuOptions = lib.callback.await("esx_vehicleshops:generateShopMenu", false, data)
+    local menuOptions = ESX.TriggerServerCallback("esx_vehicleshops:generateShopMenu", data)
 
     if type(menuOptions) ~= "table" or not next(menuOptions) then return end
 
@@ -228,7 +228,7 @@ function OpenShopMenu(data)
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel), type = "error" })
             end
 
-            local vehicleNetId = lib.callback.await("esx_vehicleshops:purchaseVehicle", 1000, {
+            local vehicleNetId = ESX.TriggerServerCallback("esx_vehicleshops:purchaseVehicle", {
                 vehicleIndex      = selectedScrollIndex,
                 vehicleShopKey    = data.vehicleShopKey,
                 vehicleCategory   = selectedVehicle.category,
