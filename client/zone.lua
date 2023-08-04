@@ -128,7 +128,6 @@ local function setupVehicleShop(vehicleShopKey)
 
     for i = 1, #vehicleShopData.BuyPoints do
         local buyPointData = vehicleShopData.BuyPoints[i]
-
         local point = lib.points.new({
             coords = buyPointData.Coords,
             distance = buyPointData.Distance,
@@ -143,9 +142,61 @@ local function setupVehicleShop(vehicleShopKey)
     end
 end
 
+local function onSellPointInside(data)
+    local sellPointData = Config.SellPoints[data.sellPointIndex]
+    local markerData = sellPointData?.Marker
+
+    if not markerData.DrawDistance or data.currentDistance <= markerData.DrawDistance then
+        DrawMarker(
+            markerData.Type or 1, --[[type]]
+            markerData.Coords.x, --[[posX]]
+            markerData.Coords.y, --[[posY]]
+            markerData.Coords.z, --[[posZ]]
+            0.0, --[[dirX]]
+            0.0, --[[dirY]]
+            0.0, --[[dirZ]]
+            0.0, --[[rotX]]
+            0.0, --[[rotY]]
+            0.0, --[[rotZ]]
+            markerData.Size.x or 1.5, --[[scaleX]]
+            markerData.Size.y or 1.5, --[[scaleY]]
+            markerData.Size.z or 1.5, --[[scaleZ]]
+            markerData.Color.r or 255, --[[red]]
+            markerData.Color.g or 255, --[[green]]
+            markerData.Color.b or 255, --[[blue]]
+            markerData.Color.a or 50, --[[alpha]]
+            markerData.UpAndDown or false, --[[bobUpAndDown]]
+            markerData.FaceCamera or true, --[[faceCamera]]
+            2, --[[p19]]
+            markerData.Rotate or false, --[[rotate]]
+            markerData.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
+            markerData.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
+            false --[[drawOnEnts]]
+        )
+    end
+end
+
+local function setupSellPoint(sellPointIndex)
+    local sellPointData = Config.SellPoints[sellPointIndex]
+    local markerData = sellPointData?.Marker
+
+    if type(markerData) ~= "table" then return end
+
+    lib.points.new({
+        coords = markerData.Coords,
+        distance = markerData.DrawDistance,
+        nearby = onSellPointInside,
+        sellPointIndex = sellPointIndex
+    })
+end
+
 -- initializing
 SetTimeout(1000, function()
     for key in pairs(Config.VehicleShops) do
         setupVehicleShop(key)
+    end
+
+    for i = 1, #Config.SellPoints do
+        setupSellPoint(i)
     end
 end)
