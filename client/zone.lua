@@ -1,4 +1,4 @@
-local zone, vehicleShopZones = {}, {}
+local zone, vehicleShopZones, vehicleSellPoints = {}, {}, {}
 
 local function createBlip(vehicleShopKey)
     local vehicleShopData = Config.VehicleShops[vehicleShopKey]
@@ -142,6 +142,51 @@ local function setupVehicleShop(vehicleShopKey)
     end
 end
 
+local function onSellPointMarkerEnter(_)
+    lib.showTextUI("[E] - Press to sell vehicle")
+end
+
+local function onSellPointMarkerExit(_)
+    lib.hideTextUI()
+end
+
+local function onSellPointMarkerInside(data)
+    if IsControlJustReleased(0, 38) then
+        OpenSellMenu(data)
+    end
+end
+
+local function onSellPointEnter(data)
+    local sellPointData = Config.SellPoints[data.sellPointIndex]
+    local markerData = sellPointData?.Marker
+    local radius
+
+    for _, value in pairs(markerData.Size) do
+        if not radius or value >= radius then
+            radius = value
+        end
+    end
+
+    local markerSphere = lib.zones.sphere({
+        coords = markerData.Coords,
+        radius = radius,
+        onEnter = onSellPointMarkerEnter,
+        onExit = onSellPointMarkerExit,
+        inside = onSellPointMarkerInside,
+        debug = Config.Debug,
+        sellPointIndex = data.sellPointIndex
+    })
+
+    vehicleSellPoints[data.sellPointIndex]["marker"] = markerSphere
+end
+
+local function onSellPointExit(data)
+    local markerSphere = vehicleSellPoints[data.sellPointIndex]["marker"]
+    vehicleSellPoints[data.sellPointIndex]["marker"] = nil
+
+    markerSphere:remove()
+end
+
 local function onSellPointInside(data)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
     local markerData = sellPointData?.Marker
@@ -182,12 +227,16 @@ local function setupSellPoint(sellPointIndex)
 
     if type(markerData) ~= "table" then return end
 
-    lib.points.new({
+    local point = lib.points.new({
         coords = markerData.Coords,
         distance = markerData.DrawDistance,
+        onEnter = onSellPointEnter,
+        onExit = onSellPointExit,
         nearby = onSellPointInside,
         sellPointIndex = sellPointIndex
     })
+
+    vehicleSellPoints[sellPointIndex] = { point = point, marker = nil }
 end
 
 -- initializing

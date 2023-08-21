@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Debug = false
+Config.Debug = true
 
 Config.DefaultPed = `A_M_Y_Business_01`
 
