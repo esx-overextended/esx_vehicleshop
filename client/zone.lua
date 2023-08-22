@@ -1,20 +1,21 @@
 local zone, vehicleShopZones, vehicleSellPoints = {}, {}, {}
 
-local function createBlip(vehicleShopKey)
-    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+local function createBlip(zoneKey)
+    local isVehicleShop = type(zoneKey) == "string" and true or false
+    local data = isVehicleShop and Config.VehicleShops[zoneKey] or Config.SellPoints[zoneKey]
 
-    if not vehicleShopData or not vehicleShopData.Blip or not vehicleShopData.Blip.Active then return end
+    if not data or not data.Blip or not data.Blip.Active then return end
 
-    local blipData = vehicleShopData.Blip
-    local blipCoords = blipData.Coords
-    local blipName = ("vehicleshop_%s"):format(vehicleShopKey)
+    local blipData = data.Blip
+    local blipCoords = blipData.Coords or data.Marker?.Coords
+    local blipName = ("%s_%s"):format(isVehicleShop and "vehicleshop" or "sellpoint", zoneKey)
     local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
 
     SetBlipSprite(blip, blipData.Type)
     SetBlipScale(blip, blipData.Size)
     SetBlipColour(blip, blipData.Color)
     SetBlipAsShortRange(blip, true)
-    AddTextEntry(blipName, vehicleShopData.Label)
+    AddTextEntry(blipName, data.Label or not isVehicleShop and "Vehicle Sell") ---@diagnostic disable-line: param-type-mismatch
     BeginTextCommandSetBlipName(blipName)
     EndTextCommandSetBlipName(blip)
 
@@ -242,7 +243,7 @@ local function setupSellPoint(sellPointIndex)
         sellPointIndex = sellPointIndex
     })
 
-    vehicleSellPoints[sellPointIndex] = { point = point, marker = nil }
+    vehicleSellPoints[sellPointIndex] = { point = point, marker = nil, blip = createBlip(sellPointIndex) }
 end
 
 -- initializing

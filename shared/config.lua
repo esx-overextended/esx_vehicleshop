@@ -79,11 +79,12 @@ Config.VehicleShops = {
 Config.SellPoints = {
     {
         Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "super", "suvs", "vans" }, -- optional
+        Label = nil,                                                                                                                              -- optional
         Blip = {                                                                                                                                  -- optional
             Active = true,
-            Type = 494,
-            Size = 0.8,
-            Color = 2
+            Type = 810,
+            Size = 0.7,
+            Color = 1
         },
         Marker = {
             Type = 1,
@@ -96,11 +97,12 @@ Config.SellPoints = {
     },
     {
         Categories = { "cycles" }, -- optional
+        Label = "Bicycle Sell",    -- optional
         Blip = {                   -- optional
-            Active = false,
+            Active = true,
             Type = 494,
-            Size = 0.8,
-            Color = 2
+            Size = 0.7,
+            Color = 1
         },
         Marker = {
             Type = 1,
