@@ -62,8 +62,9 @@ local function spawnPreviewVehicle(vehicleModel, atCoords)
     vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel
     local vehicleEntity = CreateVehicle(vehicleModel, atCoords.x, atCoords.y, atCoords.z, atCoords.w, false, false)
 
-    SetVehicleNeedsToBeHotwired(vehicleEntity, false)
+    SetModelAsNoLongerNeeded(vehicleModel)
     SetVehRadioStation(vehicleEntity, "OFF")
+    SetVehicleNeedsToBeHotwired(vehicleEntity, false)
     freezeEntity(true, vehicleEntity, atCoords)
 
     return vehicleEntity
