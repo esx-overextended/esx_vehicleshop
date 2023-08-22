@@ -240,7 +240,6 @@ function OpenShopMenu(data)
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("The purchase of %s could NOT be completed..."):format(selectedVehicleLabel), type = "error" })
             end
 
-
             for _ = 1, 2 do
                 lib.hideMenu(true)
                 Wait(10)
@@ -294,6 +293,21 @@ function OpenShopMenu(data)
     }, onMenuSelect)
 
     lib.showMenu("esx_vehicleshops:shopMenu")
+end
+
+function OpenSellMenu(data)
+    if not data?.sellPointIndex then return end
+
+    local contextOptions = ESX.TriggerServerCallback("esx_vehicleshops:generateSellMenu", data)
+
+    if type(contextOptions) ~= "table" then return end
+
+    lib.registerContext({
+        id = "esx_vehicleshops:sellMenu",
+        title = "ESX Vehicle Sell",
+        options = contextOptions
+    })
+    lib.showContext("esx_vehicleshops:sellMenu")
 end
 
 -- leave for backward-compatibility with legacy esx_vehicleshop and resources that use its export call
