@@ -93,5 +93,22 @@ Config.SellPoints = {
             DrawDistance = 20.0
         },
         ResellPercentage = 40
+    },
+    {
+        Categories = { "cycles" }, -- optional
+        Blip = {                   -- optional
+            Active = false,
+            Type = 494,
+            Size = 0.8,
+            Color = 2
+        },
+        Marker = {
+            Type = 1,
+            Size = { x = 1.5, y = 1.5, z = 1.0 },
+            Color = { r = 120, g = 0, b = 0, a = 100 },
+            Coords = vector3(-1105.37, -1700.96, 3.35),
+            DrawDistance = 20.0
+        },
+        ResellPercentage = 80
     }
 }

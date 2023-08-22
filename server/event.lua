@@ -96,7 +96,6 @@ ESX.RegisterServerCallback("esx_vehicleshops:generateSellMenu", function(source,
 
     local xVehicle = ESX.GetVehicle(playerVehicle)
     local vehicleData = ESX.GetVehicleData(xVehicle.model)
-
     local sellPointData = Config.SellPoints[data.sellPointIndex]
     local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
@@ -140,5 +139,5 @@ RegisterServerEvent("esx_vehicleshops:sellVehicle", function(data)
     xVehicle.delete(true)
     xPlayer.addAccountMoney("bank", resellPrice, message)
 
-    lib.notify(source, { title = "ESX Vehicle Sell", description = message })
+    lib.notify(source, { title = "ESX Vehicle Sell", description = message, type = "success" })
 end)
