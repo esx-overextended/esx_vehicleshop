@@ -185,6 +185,8 @@ local function onSellPointEnter(data)
     })
 
     vehicleSellPoints[data.sellPointIndex]["marker"] = markerSphere
+
+    collectgarbage("collect")
 end
 
 local function onSellPointExit(data)
@@ -192,6 +194,8 @@ local function onSellPointExit(data)
     vehicleSellPoints[data.sellPointIndex]["marker"] = nil
 
     markerSphere:remove()
+
+    collectgarbage("collect")
 end
 
 local function onSellPointInside(data)
