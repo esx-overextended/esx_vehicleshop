@@ -102,7 +102,7 @@ end
 function OpenShopMenu(data)
     if not data?.vehicleShopKey or not data?.buyPointIndex then return end
 
-    local menuOptions = ESX.TriggerServerCallback("esx_vehicleshops:generateShopMenu", data)
+    local menuOptions = ESX.TriggerServerCallback("esx_vehicleshop:generateShopMenu", data)
 
     if type(menuOptions) ~= "table" or not next(menuOptions) then return end
 
@@ -165,7 +165,7 @@ function OpenShopMenu(data)
 
         if not spawnedVehicle then
             lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Cannot load vehicle (%s)!"):format(selectedVehicleLabel), type = "error" })
-            return lib.showMenu("esx_vehicleshops:shopMenu", selectedIndex)
+            return lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex)
         end
 
         local accounts = { ["bank"] = true, ["money"] = true }
@@ -202,10 +202,10 @@ function OpenShopMenu(data)
         end
 
         lib.registerMenu({
-            id = "esx_vehicleshops:shopMenuBuyConfirmation",
+            id = "esx_vehicleshop:shopMenuBuyConfirmation",
             title = selectedVehicleLabel,
             options = options,
-            onClose = function() lib.showMenu("esx_vehicleshops:shopMenu", selectedIndex) end
+            onClose = function() lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex) end
         }, function(_selectedIndex)
             if _selectedIndex == 1 then
                 local vehicleCustomPrimaryColor = GetIsVehiclePrimaryColourCustom(spawnedVehicle) and rgbToHex(GetVehicleCustomPrimaryColour(spawnedVehicle)) or nil
@@ -219,7 +219,7 @@ function OpenShopMenu(data)
                 if input?[1] then SetVehicleCustomPrimaryColour(spawnedVehicle, hexToRGB(input[1])) end
                 if input?[2] then SetVehicleCustomSecondaryColour(spawnedVehicle, hexToRGB(input[2])) end
 
-                return lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
+                return lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")
             end
 
             local optionData = options[_selectedIndex]
@@ -228,7 +228,7 @@ function OpenShopMenu(data)
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel), type = "error" })
             end
 
-            local vehicleNetId = ESX.TriggerServerCallback("esx_vehicleshops:purchaseVehicle", {
+            local vehicleNetId = ESX.TriggerServerCallback("esx_vehicleshop:purchaseVehicle", {
                 vehicleIndex      = selectedScrollIndex,
                 vehicleShopKey    = data.vehicleShopKey,
                 vehicleCategory   = selectedVehicle.category,
@@ -270,7 +270,7 @@ function OpenShopMenu(data)
             end
         end)
 
-        lib.showMenu("esx_vehicleshops:shopMenuBuyConfirmation")
+        lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")
     end
 
     function onMenuClose()
@@ -284,7 +284,7 @@ function OpenShopMenu(data)
     end
 
     lib.registerMenu({
-        id = "esx_vehicleshops:shopMenu",
+        id = "esx_vehicleshop:shopMenu",
         title = vehicleShopData?.Label,
         options = menuOptions,
         onSideScroll = onMenuChange,
@@ -292,22 +292,22 @@ function OpenShopMenu(data)
         onClose = onMenuClose
     }, onMenuSelect)
 
-    lib.showMenu("esx_vehicleshops:shopMenu")
+    lib.showMenu("esx_vehicleshop:shopMenu")
 end
 
 function OpenSellMenu(data)
     if not data?.sellPointIndex then return end
 
-    local contextOptions = ESX.TriggerServerCallback("esx_vehicleshops:generateSellMenu", data)
+    local contextOptions = ESX.TriggerServerCallback("esx_vehicleshop:generateSellMenu", data)
 
     if type(contextOptions) ~= "table" then return end
 
     lib.registerContext({
-        id = "esx_vehicleshops:sellMenu",
+        id = "esx_vehicleshop:sellMenu",
         title = "ESX Vehicle Sell",
         options = contextOptions
     })
-    lib.showContext("esx_vehicleshops:sellMenu")
+    lib.showContext("esx_vehicleshop:sellMenu")
 end
 
 -- leave for backward-compatibility with legacy esx_vehicleshop and resources that use its export call

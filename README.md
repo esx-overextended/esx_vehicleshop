@@ -1,4 +1,4 @@
-# esx_vehicleshops
+# esx_vehicleshop
 
 Works with [esx-overextended](https://github.com/esx-overextended/es_extended) **only**!
 

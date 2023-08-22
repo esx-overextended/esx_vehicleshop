@@ -1,4 +1,4 @@
-ESX.RegisterServerCallback("esx_vehicleshops:generateShopMenu", function(source, cb, data)
+ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
     if not data?.vehicleShopKey or not data?.buyPointIndex or not data?.currentDistance then return cb() end
 
     local playerPed = GetPlayerPed(source)
@@ -47,7 +47,7 @@ ESX.RegisterServerCallback("esx_vehicleshops:generateShopMenu", function(source,
     return cb(menuOptions)
 end)
 
-ESX.RegisterServerCallback("esx_vehicleshops:purchaseVehicle", function(source, cb, data)
+ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, cb, data)
     local xPlayer = ESX.GetPlayerFromId(source)
 
     if not xPlayer or not data?.vehicleIndex or not data?.vehicleShopKey or not data?.vehicleCategory or not data?.purchaseAccount or not data?.vehicleProperties then return cb() end
@@ -86,7 +86,7 @@ ESX.RegisterServerCallback("esx_vehicleshops:purchaseVehicle", function(source, 
     return cb(xVehicle.netId)
 end)
 
-ESX.RegisterServerCallback("esx_vehicleshops:generateSellMenu", function(source, cb, data)
+ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, cb, data)
     if not data?.sellPointIndex then return cb() end
 
     local playerPed = GetPlayerPed(source)
@@ -109,7 +109,7 @@ ESX.RegisterServerCallback("esx_vehicleshops:generateSellMenu", function(source,
             title = ("Confirm to Sell & Receive $%s"):format(resellPrice),
             icon = "fa-solid fa-circle-check",
             iconColor = "green",
-            serverEvent = "esx_vehicleshops:sellVehicle",
+            serverEvent = "esx_vehicleshop:sellVehicle",
             args = data,
         }
     }
@@ -117,7 +117,7 @@ ESX.RegisterServerCallback("esx_vehicleshops:generateSellMenu", function(source,
     return cb(contextOptions)
 end)
 
-RegisterServerEvent("esx_vehicleshops:sellVehicle", function(data)
+RegisterServerEvent("esx_vehicleshop:sellVehicle", function(data)
     local source = source
 
     if not data?.sellPointIndex then return end

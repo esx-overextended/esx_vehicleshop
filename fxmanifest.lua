@@ -3,9 +3,9 @@ use_experimental_fxv2_oal "yes"
 lua54 "yes"
 game "gta5"
 
-name "esx_vehicleshops"
+name "esx_vehicleshop"
 version "0.0.0"
-description "ESX-Overextended Vehicle Shops"
+description "ESX-Overextended Vehicle Shop"
 
 dependencies {
     "es_extended",
