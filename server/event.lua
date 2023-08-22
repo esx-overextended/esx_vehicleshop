@@ -134,13 +134,7 @@ RegisterServerEvent("esx_vehicleshops:sellVehicle", function(data)
     local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
 
-    for i = -1, vehicleData.seats do
-        local pedAtSeat = GetPedInVehicleSeat(playerVehicle, i)
-
-        TaskLeaveVehicle(pedAtSeat, playerVehicle, 0)
-    end
-
-    Wait(1500)
+    if not MakeVehicleEmpty(xVehicle.entity, vehicleData.seats) then return lib.notify(source, { title = "ESX Vehicle Sell", description = "An error happenned during the sell process!", type = "error" }) end
 
     local message = ("Sold %s (Plate: %s) for $%s"):format(("%s %s"):format(vehicleData?.make, vehicleData?.name), xVehicle.plate, resellPrice)
 
