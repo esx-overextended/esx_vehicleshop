@@ -85,3 +85,60 @@ ESX.RegisterServerCallback("esx_vehicleshops:purchaseVehicle", function(source, 
 
     return cb(xVehicle.netId)
 end)
+
+ESX.RegisterServerCallback("esx_vehicleshops:generateSellMenu", function(source, cb, data)
+    if not data?.sellPointIndex then return cb() end
+
+    local playerPed = GetPlayerPed(source)
+    local playerVehicle = GetVehiclePedIsIn(playerPed, false)
+
+    if not CanPlayerSellVehicle(source, playerVehicle, data.sellPointIndex, data.distance) then return cb() end
+
+    local xVehicle = ESX.GetVehicle(playerVehicle)
+    local vehicleData = ESX.GetVehicleData(xVehicle.model)
+
+    local sellPointData = Config.SellPoints[data.sellPointIndex]
+    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
+    local contextOptions = {
+        {
+            title = ("Selling %s"):format(("%s %s"):format(vehicleData?.make, vehicleData?.name)),
+            icon = "fa-solid fa-square-poll-horizontal",
+            description = ("- Factory Price: $%s\n- Sell Price: $%s"):format(originalVehiclePrice, resellPrice)
+        },
+        {
+            title = ("Confirm to Sell & Receive $%s"):format(resellPrice),
+            icon = "fa-solid fa-circle-check",
+            iconColor = "green",
+            serverEvent = "esx_vehicleshops:sellVehicle",
+            args = data,
+        }
+    }
+
+    return cb(contextOptions)
+end)
+
+RegisterServerEvent("esx_vehicleshops:sellVehicle", function(data)
+    local source = source
+
+    if not data?.sellPointIndex then return end
+
+    local playerPed = GetPlayerPed(source)
+    local playerVehicle = GetVehiclePedIsIn(playerPed, false)
+
+    if not CanPlayerSellVehicle(source, playerVehicle, data.sellPointIndex, data.distance) then return end
+
+    local xVehicle = ESX.GetVehicle(playerVehicle)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local vehicleData = ESX.GetVehicleData(xVehicle.model)
+    local sellPointData = Config.SellPoints[data.sellPointIndex]
+    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
+
+    local message = ("Sold %s (Plate: %s) for $%s"):format(("%s %s"):format(vehicleData?.make, vehicleData?.name), xVehicle.plate, resellPrice)
+
+    xVehicle.delete(true)
+    xPlayer.addAccountMoney("bank", resellPrice, message)
+
+    lib.notify(source, { title = "ESX Vehicle Sell", description = message })
+end)

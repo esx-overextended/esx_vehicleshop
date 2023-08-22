@@ -148,12 +148,18 @@ end
 
 local function onSellPointMarkerExit(_)
     lib.hideTextUI()
+
+    local menuId = lib.getOpenContextMenu()
+
+    if menuId and menuId:find(cache.resource) then
+        lib.hideContext(true)
+    end
 end
 
 local function onSellPointMarkerInside(data)
-    if IsControlJustReleased(0, 38) then
-        OpenSellMenu(data)
-    end
+    if not IsControlJustReleased(0, 38) then return end
+
+    OpenSellMenu(data)
 end
 
 local function onSellPointEnter(data)

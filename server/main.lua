@@ -24,6 +24,18 @@ function GetVehiclesAndCategories()
     return vehicles, categories
 end
 
+---@param categoryName string
+---@return string?
+function GetCategoryLabel(categoryName)
+    for i = 1, #categories do
+        local category = categories[i]
+
+        if category.name == categoryName then
+            return category.label
+        end
+    end
+end
+
 ---@param vehicleShopKey string
 ---@return table
 function GetVehiclesByCategoryForShop(vehicleShopKey)
@@ -64,6 +76,112 @@ function GetVehiclesByCategoryForShop(vehicleShopKey)
     end
 
     return vehiclesByCategory
+end
+
+---@param model string
+---@return number?
+function GetVehiclePriceByModel(model)
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+
+        if vehicle.model == model then
+            return vehicle.price
+        end
+    end
+end
+
+---@param model string
+---@return table?
+function GetVehicleCategoryByModel(model)
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+
+        if vehicle.model == model then
+            for j = 1, #categories do
+                local category = categories[j]
+
+                if category.name == vehicle.category then
+                    return { name = category.name, category.label }
+                end
+            end
+        end
+    end
+end
+
+---@param source number
+---@param vehicle number
+---@param sellPointIndex number
+---@param distance number
+---@return boolean
+function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
+    local playerPed = GetPlayerPed(source)
+
+    if not vehicle or vehicle <= 0 or GetPedInVehicleSeat(vehicle, -1) ~= playerPed then
+        lib.notify(source, { title = "ESX Vehicle Sell", description = "You must be in the driver seat of a vehicle to be able to sell it!", type = "warning" })
+        return false
+    end
+
+    local xVehicle = ESX.GetVehicle(vehicle)
+    local xPlayer = ESX.GetPlayerFromId(source)
+
+    if not xVehicle or xPlayer?.identifier ~= xVehicle.owner then
+        lib.notify(source, { title = "ESX Vehicle Sell", description = "You cannot sell this vehicle!", type = "error" })
+        return false
+    end
+
+    local sellPointData = Config.SellPoints[sellPointIndex]
+    local vehicleCategory = GetVehicleCategoryByModel(xVehicle.model)
+
+    if sellPointData.Categories then
+        local isCategoryValid = false
+
+        for i = 1, #sellPointData.Categories do
+            if sellPointData.Categories[i] == vehicleCategory?.name then
+                isCategoryValid = true
+                break
+            end
+        end
+
+        if not isCategoryValid then
+            local authorizedCategories, authorizedCategoriesCount = {}, 0
+
+            for i = 1, #sellPointData.Categories do
+                local categoryLabel = GetCategoryLabel(sellPointData.Categories[i])
+
+                if categoryLabel then
+                    authorizedCategoriesCount += 1
+                    authorizedCategories[authorizedCategoriesCount] = categoryLabel
+                end
+            end
+
+            lib.notify(source, {
+                title = "ESX Vehicle Sell",
+                description = ("This vehicle cannot be sold here!\nAccepted categories are: %s"):format(table.concat(authorizedCategories, ", ")),
+                type = "warning",
+                duration = 5000
+            })
+
+            return false
+        end
+    end
+
+    local playerCoords = GetEntityCoords(playerPed)
+    local sellPointCoords = sellPointData.Marker?.Coords
+    local distanceToSellPoint = sellPointCoords and #(vector3(sellPointCoords.x, sellPointCoords.y, sellPointCoords.z) - playerCoords)
+
+    if not distanceToSellPoint or math.floor(distanceToSellPoint) ~= math.floor(distance) then
+        ESX.Trace(("Player(%s) distance to the sell:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(source, sellPointIndex, distance, distanceToSellPoint), "warning", true)
+        return false
+    end
+
+    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+
+    if not originalVehiclePrice then
+        lib.notify(source, { title = "ESX Vehicle Sell", description = "This vehicle's factory price is unknown!", type = "error" })
+        return false
+    end
+
+    return true
 end
 
 ---@param source string | number
