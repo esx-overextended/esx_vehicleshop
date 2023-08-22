@@ -1,14 +1,14 @@
 ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
-    if not data?.vehicleShopKey or not data?.buyPointIndex or not data?.currentDistance then return cb() end
+    if not data?.vehicleShopKey or not data?.representativePedIndex or not data?.currentDistance then return cb() end
 
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local buyPointCoords = vehicleShopData.BuyPoints?[data.buyPointIndex]?.Coords
-    local distanceToBuyPoint = buyPointCoords and #(vector3(buyPointCoords.x, buyPointCoords.y, buyPointCoords.z) - playerCoords)
+    local representativePedCoords = vehicleShopData.RepresentativePeds?[data.representativePedIndex]?.Coords
+    local distanceToRepresentativePed = representativePedCoords and #(vector3(representativePedCoords.x, representativePedCoords.y, representativePedCoords.z) - playerCoords)
 
-    if not distanceToBuyPoint or math.floor(distanceToBuyPoint) ~= math.floor(data.currentDistance) then
-        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.buyPointIndex, data.currentDistance, distanceToBuyPoint), "error", true)
+    if not distanceToRepresentativePed or math.floor(distanceToRepresentativePed) ~= math.floor(data.currentDistance) then
+        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.representativePedIndex, data.currentDistance, distanceToRepresentativePed), "error", true)
         return cb()
     end
 

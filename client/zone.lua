@@ -25,7 +25,7 @@ end
 function zone.configurePed(action, data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
-    local pointData = vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex]
+    local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
     local cachePed = pointData.pedEntity
 
     if cachePed then
@@ -35,13 +35,13 @@ function zone.configurePed(action, data)
     end
 
     if action == "enter" then
-        local buyPointData = vehicleShopData.BuyPoints[data.buyPointIndex]
-        local pedModel = buyPointData.Model or Config.DefaultPed --[[@as number | string]]
+        local representativePedData = vehicleShopData.RepresentativePeds[data.representativePedIndex]
+        local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
         pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
 
         lib.requestModel(pedModel, 1000)
 
-        local pedEntity = CreatePed(0, pedModel, buyPointData.Coords.x, buyPointData.Coords.y, buyPointData.Coords.z, buyPointData.Coords.w, false, true)
+        local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
 
         SetPedFleeAttributes(pedEntity, 2, true)
         SetBlockingOfNonTemporaryEvents(pedEntity, true)
@@ -66,55 +66,55 @@ local function configureZone(action, data)
     collectgarbage("collect")
 end
 
-local function onVehicleShopBuyPointEnter(data)
-    if vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].inRange then return end
+local function onVehicleShopRepresentativePedEnter(data)
+    if vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
 
-    vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].inRange = true
+    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = true
 
-    if Config.Debug then print("entered buy point index of", data.buyPointIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    if Config.Debug then print("entered buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
 
     configureZone("enter", data)
 end
 
-local function onVehicleShopBuyPointExit(data)
-    if not vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].inRange then return end
+local function onVehicleShopRepresentativePedExit(data)
+    if not vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
 
-    vehicleShopZones[data.vehicleShopKey]["buyPoints"][data.buyPointIndex].inRange = false
+    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = false
 
-    if Config.Debug then print("exited buy point index of", data.buyPointIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    if Config.Debug then print("exited buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
 
     configureZone("exit", data)
 end
 
-local function onVehicleShopBuyPointInside(data)
+local function onVehicleShopRepresentativePedInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local buyPoint = vehicleShopData.BuyPoints[data.buyPointIndex]
+    local representativePed = vehicleShopData.RepresentativePeds[data.representativePedIndex]
 
-    if not buyPoint.Marker.DrawDistance or data.currentDistance <= buyPoint.Marker.DrawDistance then
+    if not representativePed.Marker.DrawDistance or data.currentDistance <= representativePed.Marker.DrawDistance then
         DrawMarker(
-            buyPoint.Marker.Type or 1, --[[type]]
-            buyPoint.Marker.Coords.x or buyPoint.Coords.x, --[[posX]]
-            buyPoint.Marker.Coords.y or buyPoint.Coords.y, --[[posY]]
-            buyPoint.Marker.Coords.z or buyPoint.Coords.z, --[[posZ]]
+            representativePed.Marker.Type or 1, --[[type]]
+            representativePed.Marker.Coords.x or representativePed.Coords.x, --[[posX]]
+            representativePed.Marker.Coords.y or representativePed.Coords.y, --[[posY]]
+            representativePed.Marker.Coords.z or representativePed.Coords.z, --[[posZ]]
             0.0, --[[dirX]]
             0.0, --[[dirY]]
             0.0, --[[dirZ]]
             0.0, --[[rotX]]
             0.0, --[[rotY]]
             0.0, --[[rotZ]]
-            buyPoint.Marker.Size.x or 1.5, --[[scaleX]]
-            buyPoint.Marker.Size.y or 1.5, --[[scaleY]]
-            buyPoint.Marker.Size.z or 1.5, --[[scaleZ]]
-            buyPoint.Marker.Color.r or 255, --[[red]]
-            buyPoint.Marker.Color.g or 255, --[[green]]
-            buyPoint.Marker.Color.b or 255, --[[blue]]
-            buyPoint.Marker.Color.a or 50, --[[alpha]]
-            buyPoint.Marker.UpAndDown or false, --[[bobUpAndDown]]
-            buyPoint.Marker.FaceCamera or true, --[[faceCamera]]
+            representativePed.Marker.Size.x or 1.5, --[[scaleX]]
+            representativePed.Marker.Size.y or 1.5, --[[scaleY]]
+            representativePed.Marker.Size.z or 1.5, --[[scaleZ]]
+            representativePed.Marker.Color.r or 255, --[[red]]
+            representativePed.Marker.Color.g or 255, --[[green]]
+            representativePed.Marker.Color.b or 255, --[[blue]]
+            representativePed.Marker.Color.a or 50, --[[alpha]]
+            representativePed.Marker.UpAndDown or false, --[[bobUpAndDown]]
+            representativePed.Marker.FaceCamera or true, --[[faceCamera]]
             2, --[[p19]]
-            buyPoint.Marker.Rotate or false, --[[rotate]]
-            buyPoint.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
-            buyPoint.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
+            representativePed.Marker.Rotate or false, --[[rotate]]
+            representativePed.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
+            representativePed.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
             false --[[drawOnEnts]]
         )
     end
@@ -123,23 +123,23 @@ end
 local function setupVehicleShop(vehicleShopKey)
     local vehicleShopData = Config.VehicleShops[vehicleShopKey]
 
-    if type(vehicleShopData?.BuyPoints) ~= "table" then return end
+    if type(vehicleShopData?.RepresentativePeds) ~= "table" then return end
 
-    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), buyPoints = {} }
+    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), representativePeds = {} }
 
-    for i = 1, #vehicleShopData.BuyPoints do
-        local buyPointData = vehicleShopData.BuyPoints[i]
+    for i = 1, #vehicleShopData.RepresentativePeds do
+        local representativePedData = vehicleShopData.RepresentativePeds[i]
         local point = lib.points.new({
-            coords = buyPointData.Coords,
-            distance = buyPointData.Distance,
-            onEnter = onVehicleShopBuyPointEnter,
-            onExit = onVehicleShopBuyPointExit,
-            nearby = buyPointData.Marker and onVehicleShopBuyPointInside,
+            coords = representativePedData.Coords,
+            distance = representativePedData.Distance,
+            onEnter = onVehicleShopRepresentativePedEnter,
+            onExit = onVehicleShopRepresentativePedExit,
+            nearby = representativePedData.Marker and onVehicleShopRepresentativePedInside,
             vehicleShopKey = vehicleShopKey,
-            buyPointIndex = i
+            representativePedIndex = i
         })
 
-        vehicleShopZones[vehicleShopKey]["buyPoints"][i] = { point = point, inRange = false, pedEntity = nil }
+        vehicleShopZones[vehicleShopKey]["representativePeds"][i] = { point = point, inRange = false, pedEntity = nil }
     end
 end
 

@@ -18,9 +18,9 @@ Config.VehicleShops = {
             Size = 0.8,
             Color = 0
         },
-        BuyPoints = {
+        RepresentativePeds = {
             {
-                Model = nil, -- optional
+                Model = nil, -- optional - if omitted, it will use the Config.DefaultPed
                 Coords = vector4(-33.0, -1103.79, 25.41, 76.53),
                 Distance = 30.0,
                 Marker = {                                          -- optional
@@ -32,7 +32,7 @@ Config.VehicleShops = {
                 }
             },
             {
-                Model = `A_M_Y_Business_03`, -- optional
+                Model = `A_F_Y_Business_01`, -- optional - if omitted, it will use the Config.DefaultPed
                 Coords = vector4(-56.58, -1098.67, 25.41, 11.34),
                 Distance = 30.0,
                 Marker = {                                          -- optional
@@ -57,7 +57,7 @@ Config.VehicleShops = {
             Size = 0.8,
             Color = 2
         },
-        BuyPoints = {
+        RepresentativePeds = {
             {
                 Model = `U_M_M_BikeHire_01`,
                 Coords = vector4(-1107.995605, -1694.268066, 3.359009, 314.645660),
@@ -88,7 +88,7 @@ Config.SellPoints = {
         },
         Marker = {
             Type = 1,
-            Size = { x = 1.5, y = 1.5, z = 1.0 },
+            Size = { x = 2.5, y = 2.5, z = 1.5 },
             Color = { r = 120, g = 0, b = 0, a = 100 },
             Coords = vector3(-36.29, -1088.59, 25.4),
             DrawDistance = 20.0

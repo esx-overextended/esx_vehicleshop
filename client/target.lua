@@ -1,7 +1,7 @@
 Target = {}
 
 function Target.addPed(entity, data)
-    local optionId = ("%s:open_shop_%s:%s"):format(cache.resource, data.vehicleShopKey, data.buyPointIndex)
+    local optionId = ("%s:open_shop_%s:%s"):format(cache.resource, data.vehicleShopKey, data.representativePedIndex)
 
     exports["ox_target"]:addLocalEntity(entity, {
         {

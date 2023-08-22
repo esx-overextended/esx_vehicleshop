@@ -101,7 +101,7 @@ local function rgbToHex(r, g, b)
 end
 
 function OpenShopMenu(data)
-    if not data?.vehicleShopKey or not data?.buyPointIndex then return end
+    if not data?.vehicleShopKey or not data?.representativePedIndex then return end
 
     local menuOptions = ESX.TriggerServerCallback("esx_vehicleshop:generateShopMenu", data)
 

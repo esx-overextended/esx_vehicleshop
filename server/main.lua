@@ -202,6 +202,7 @@ function MakeVehicleEmpty(vehicleEntity, maxNoSeats)
         end
 
         if freeNoSeats == maxNoSeats then
+            Wait(500)
             return true
         end
 
