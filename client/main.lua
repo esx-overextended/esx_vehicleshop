@@ -196,7 +196,8 @@ function OpenShopMenu(data)
                 close = false,
                 accountName = account.name,
                 accountLabel = account.label,
-                canUseThisAccount = canUseThisAccount
+                canUseThisAccount = canUseThisAccount,
+                description = ("Price: $%s"):format(selectedVehicle.price)
             }
 
             ::skipLoop::
@@ -228,6 +229,21 @@ function OpenShopMenu(data)
             if not optionData?.canUseThisAccount then
                 return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel), type = "error" })
             end
+
+            local currentMenu = lib.getOpenMenu()
+
+            lib.hideMenu(false)
+
+            local alertDialog = lib.alertDialog({
+                header = ("**%s Purchase Confirmation**"):format(selectedVehicleLabel),
+                content = ("Are you sure you want to purchase the vehicle %s for $%s with %s?"):format(selectedVehicleLabel, selectedVehicle.price, optionData?.accountLabel),
+                centered = true,
+                cancel = true
+            })
+
+            lib.showMenu(currentMenu, _selectedIndex)
+
+            if alertDialog ~= "confirm" then return end
 
             local vehicleNetId = ESX.TriggerServerCallback("esx_vehicleshop:purchaseVehicle", {
                 vehicleIndex      = selectedScrollIndex,
