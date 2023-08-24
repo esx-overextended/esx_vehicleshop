@@ -42,7 +42,7 @@ local function spinner(state, text)
     EndTextCommandBusyspinnerOn(4)
 end
 
----@param entity number
+---@param entity? number
 ---@return boolean
 local function deleteEntity(entity)
     if not entity then return false end

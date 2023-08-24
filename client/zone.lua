@@ -23,6 +23,8 @@ local function createBlip(zoneKey)
 end
 
 function zone.configurePed(action, data)
+    if data?.representativeCategory ~= "RepresentativePeds" then return end
+
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
     local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
@@ -58,6 +60,39 @@ function zone.configurePed(action, data)
     end
 end
 
+function zone.configureVehicle(action, data)
+    if data?.representativeCategory ~= "RepresentativeVehicles" then return end
+
+    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
+
+    local pointData = vehicleShopZones[data.vehicleShopKey]["representativeVehicles"][data.representativeVehicleIndex]
+    local cacheVehicle = pointData.vehicleEntity
+
+    if cacheVehicle then
+        if DoesEntityExist(cacheVehicle) then DeleteVehicle(cacheVehicle) end
+
+        pointData.pedEntity = nil
+    end
+
+    if action == "enter" then
+        local representativeVehicleData = vehicleShopData.RepresentativeVehicles[data.representativeVehicleIndex]
+        local vehicleModel = representativeVehicleData.Model or Config.DefaultVehicle --[[@as number | string]]
+        vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel --[[@as number]]
+
+        lib.requestModel(vehicleModel, 1000)
+
+        local vehicleEntity = CreateVehicle(vehicleModel, representativeVehicleData.Coords.x, representativeVehicleData.Coords.y, representativeVehicleData.Coords.z, representativeVehicleData.Coords.w, false, false)
+
+        FreezeEntityPosition(vehicleEntity, true)
+        SetEntityInvincible(vehicleEntity, true)
+
+        pointData.vehicleEntity = vehicleEntity
+        -- TODO: add target
+    elseif action == "exit" then
+        -- TODO: remove added target
+    end
+end
+
 local function configureZone(action, data)
     for functionName in pairs(zone) do
         zone[functionName](action, data)
@@ -66,55 +101,61 @@ local function configureZone(action, data)
     collectgarbage("collect")
 end
 
-local function onVehicleShopRepresentativePedEnter(data)
-    if vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
+local function onVehicleShopRepresentativeEnter(data)
+    local representativeCategory = data?.representativeCategory:gsub("^%u", string.lower)
+    local representativeIndex = data.representativePedIndex or data.representativeVehicleIndex
 
-    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = true
+    if vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange then return end
 
-    if Config.Debug then print("entered buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = true
+
+    if Config.Debug then print("entered buy point index of", representativeIndex, "of vehicle shop zone", data.vehicleShopKey) end
 
     configureZone("enter", data)
 end
 
-local function onVehicleShopRepresentativePedExit(data)
-    if not vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
+local function onVehicleShopRepresentativeExit(data)
+    local representativeCategory = data?.representativeCategory:gsub("^%u", string.lower)
+    local representativeIndex = data.representativePedIndex or data.representativeVehicleIndex
 
-    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = false
+    if not vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange then return end
 
-    if Config.Debug then print("exited buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = false
+
+    if Config.Debug then print("exited buy point index of", representativeIndex, "of vehicle shop zone", data.vehicleShopKey) end
 
     configureZone("exit", data)
 end
 
-local function onVehicleShopRepresentativePedInside(data)
+local function onVehicleShopRepresentativeInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local representativePed = vehicleShopData.RepresentativePeds[data.representativePedIndex]
+    local representative = vehicleShopData[data?.representativeCategory][data.representativePedIndex or data.representativeVehicleIndex]
 
-    if not representativePed.Marker.DrawDistance or data.currentDistance <= representativePed.Marker.DrawDistance then
+    if not representative.Marker.DrawDistance or data.currentDistance <= representative.Marker.DrawDistance then
         DrawMarker(
-            representativePed.Marker.Type or 1, --[[type]]
-            representativePed.Marker.Coords.x or representativePed.Coords.x, --[[posX]]
-            representativePed.Marker.Coords.y or representativePed.Coords.y, --[[posY]]
-            representativePed.Marker.Coords.z or representativePed.Coords.z, --[[posZ]]
+            representative.Marker.Type or 1, --[[type]]
+            representative.Marker.Coords.x or representative.Coords.x, --[[posX]]
+            representative.Marker.Coords.y or representative.Coords.y, --[[posY]]
+            representative.Marker.Coords.z or representative.Coords.z, --[[posZ]]
             0.0, --[[dirX]]
             0.0, --[[dirY]]
             0.0, --[[dirZ]]
             0.0, --[[rotX]]
             0.0, --[[rotY]]
             0.0, --[[rotZ]]
-            representativePed.Marker.Size.x or 1.5, --[[scaleX]]
-            representativePed.Marker.Size.y or 1.5, --[[scaleY]]
-            representativePed.Marker.Size.z or 1.5, --[[scaleZ]]
-            representativePed.Marker.Color.r or 255, --[[red]]
-            representativePed.Marker.Color.g or 255, --[[green]]
-            representativePed.Marker.Color.b or 255, --[[blue]]
-            representativePed.Marker.Color.a or 50, --[[alpha]]
-            representativePed.Marker.UpAndDown or false, --[[bobUpAndDown]]
-            representativePed.Marker.FaceCamera or true, --[[faceCamera]]
+            representative.Marker.Size.x or 1.5, --[[scaleX]]
+            representative.Marker.Size.y or 1.5, --[[scaleY]]
+            representative.Marker.Size.z or 1.5, --[[scaleZ]]
+            representative.Marker.Color.r or 255, --[[red]]
+            representative.Marker.Color.g or 255, --[[green]]
+            representative.Marker.Color.b or 255, --[[blue]]
+            representative.Marker.Color.a or 50, --[[alpha]]
+            representative.Marker.UpAndDown or false, --[[bobUpAndDown]]
+            representative.Marker.FaceCamera or true, --[[faceCamera]]
             2, --[[p19]]
-            representativePed.Marker.Rotate or false, --[[rotate]]
-            representativePed.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
-            representativePed.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
+            representative.Marker.Rotate or false, --[[rotate]]
+            representative.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
+            representative.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
             false --[[drawOnEnts]]
         )
     end
@@ -122,25 +163,49 @@ end
 
 local function setupVehicleShop(vehicleShopKey)
     local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+    local representativePeds, representativeVehicles
 
-    if type(vehicleShopData?.RepresentativePeds) ~= "table" then return end
+    if type(vehicleShopData.RepresentativePeds) == "table" then
+        representativePeds = {}
 
-    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), representativePeds = {} }
+        for i = 1, #vehicleShopData.RepresentativePeds do
+            local representativePedData = vehicleShopData.RepresentativePeds[i]
+            local point = lib.points.new({
+                coords = representativePedData.Coords,
+                distance = representativePedData.Distance,
+                onEnter = onVehicleShopRepresentativeEnter,
+                onExit = onVehicleShopRepresentativeExit,
+                nearby = representativePedData.Marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey = vehicleShopKey,
+                representativeCategory = "RepresentativePeds",
+                representativePedIndex = i
+            })
 
-    for i = 1, #vehicleShopData.RepresentativePeds do
-        local representativePedData = vehicleShopData.RepresentativePeds[i]
-        local point = lib.points.new({
-            coords = representativePedData.Coords,
-            distance = representativePedData.Distance,
-            onEnter = onVehicleShopRepresentativePedEnter,
-            onExit = onVehicleShopRepresentativePedExit,
-            nearby = representativePedData.Marker and onVehicleShopRepresentativePedInside,
-            vehicleShopKey = vehicleShopKey,
-            representativePedIndex = i
-        })
-
-        vehicleShopZones[vehicleShopKey]["representativePeds"][i] = { point = point, inRange = false, pedEntity = nil }
+            representativePeds[i] = { point = point, inRange = false, pedEntity = nil }
+        end
     end
+
+    if type(vehicleShopData.RepresentativeVehicles) == "table" then
+        representativeVehicles = {}
+
+        for i = 1, #vehicleShopData.RepresentativeVehicles do
+            local representativeVehicleData = vehicleShopData.RepresentativeVehicles[i]
+            local point = lib.points.new({
+                coords = representativeVehicleData.Coords,
+                distance = representativeVehicleData.Distance,
+                onEnter = onVehicleShopRepresentativeEnter,
+                onExit = onVehicleShopRepresentativeExit,
+                nearby = representativeVehicleData.Marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey = vehicleShopKey,
+                representativeCategory = "RepresentativeVehicles",
+                representativeVehicleIndex = i
+            })
+
+            representativeVehicles[i] = { point = point, inRange = false, vehicleEntity = nil }
+        end
+    end
+
+    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), representativePeds = representativePeds, representativeVehicles = representativeVehicles }
 end
 
 local function onSellPointMarkerEnter(_)

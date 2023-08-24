@@ -9,9 +9,9 @@ Config.DefaultVehicleSpawnCoordsAfterPurchase = vector4(133.25, -3210.30, 5.43, 
 
 Config.VehicleShops = {
     ["pdm"] = {
-        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "super", "suvs", "vans" }, -- optional
+        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "suvs", "vans" }, -- optional
         Label = "Premium Deluxe Motorsport",
-        Blip = {                                                                                                                                  -- optional
+        Blip = {                                                                                                                         -- optional
             Active = true,
             Coords = vector3(-46.08, -1098.30, 26.4),
             Type = 810,
@@ -46,6 +46,54 @@ Config.VehicleShops = {
         },
         VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
         VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
+    },
+    ["pdm_highend"] = {
+        Categories = { "super" }, -- optional
+        Label = "Premium Deluxe Motorsport",
+        Blip = {                  -- optional
+            Active = true,
+            Coords = vector3(-1256.20, -362.24, 36.89),
+            Type = 810,
+            Size = 0.8,
+            Color = 0
+        },
+        RepresentativeVehicles = {
+            {
+                Model = `adder`,
+                Coords = vector4(-1262.909, -353.173, 36.772, 178.694),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1267.627, -355.330, 36.772, 239.634),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1271.299, -359.559, 36.487, 261.21),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1269.559, -364.349, 36.608, 319.256),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1249.098, -350.528, 40.163, 206.351),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1246.203, -354.344, 40.163, 117.634),
+                Distance = 30.0
+            },
+            {
+                Model = `adder`,
+                Coords = vector4(-1244.934, -358.844, 40.163, 26.534),
+                Distance = 30.0
+            },
+        },
     },
     ["beach_bike"] = {
         Categories = { "cycles" },
