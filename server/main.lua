@@ -18,6 +18,9 @@ function RefreshVehiclesAndCategories()
     end
 
     vehicles = validVehicles
+
+    GlobalState:set("esx_vehicleshop:vehicles", vehicles, true)
+    GlobalState:set("esx_vehicleshop:categories", categories, true)
 end
 
 function GetVehiclesAndCategories()

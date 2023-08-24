@@ -61,37 +61,86 @@ Config.VehicleShops = {
             {
                 Model = `adder`,
                 Coords = vector4(-1262.909, -353.173, 36.772, 178.694),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1262.909, -353.173, 37.772),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1267.627, -355.330, 36.772, 239.634),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1267.627, -355.330, 37.772),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1271.299, -359.559, 36.487, 261.21),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1271.299, -359.559, 37.772),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1269.559, -364.349, 36.608, 319.256),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1269.559, -364.349, 37.772),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1249.098, -350.528, 40.163, 206.351),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1249.098, -350.528, 41.163),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1246.203, -354.344, 40.163, 117.634),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1246.203, -354.344, 41.163),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
             {
                 Model = `adder`,
                 Coords = vector4(-1244.934, -358.844, 40.163, 26.534),
-                Distance = 30.0
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1244.934, -358.844, 41.163),  -- optional
+                    DrawDistance = 25.0                             -- optional
+                }
             },
         },
     },

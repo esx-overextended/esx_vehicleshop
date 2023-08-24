@@ -41,7 +41,7 @@ function zone.configurePed(action, data)
         local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
         pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
 
-        lib.requestModel(pedModel, 1000)
+        lib.requestModel(pedModel, 1000000)
 
         local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
 
@@ -69,17 +69,22 @@ function zone.configureVehicle(action, data)
     local cacheVehicle = pointData.vehicleEntity
 
     if cacheVehicle then
-        if DoesEntityExist(cacheVehicle) then DeleteVehicle(cacheVehicle) end
+        if DoesEntityExist(cacheVehicle) then
+            SetModelAsNoLongerNeeded(GetEntityModel(cacheVehicle))
+            DeleteVehicle(cacheVehicle)
+        end
 
-        pointData.pedEntity = nil
+        pointData.vehicleEntity = nil
     end
 
     if action == "enter" then
         local representativeVehicleData = vehicleShopData.RepresentativeVehicles[data.representativeVehicleIndex]
-        local vehicleModel = representativeVehicleData.Model or Config.DefaultVehicle --[[@as number | string]]
+
+        local vehicleModel = GetRandomVehicleModelFromShop(data.vehicleShopKey)
+
         vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel --[[@as number]]
 
-        lib.requestModel(vehicleModel, 1000)
+        lib.requestModel(vehicleModel, 1000000)
 
         local vehicleEntity = CreateVehicle(vehicleModel, representativeVehicleData.Coords.x, representativeVehicleData.Coords.y, representativeVehicleData.Coords.z, representativeVehicleData.Coords.w, false, false)
 
@@ -109,7 +114,7 @@ local function onVehicleShopRepresentativeEnter(data)
 
     vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = true
 
-    if Config.Debug then print("entered buy point index of", representativeIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    ESX.Trace("entered buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
 
     configureZone("enter", data)
 end
@@ -122,7 +127,7 @@ local function onVehicleShopRepresentativeExit(data)
 
     vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = false
 
-    if Config.Debug then print("exited buy point index of", representativeIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    ESX.Trace("exited buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
 
     configureZone("exit", data)
 end
@@ -317,6 +322,11 @@ end
 
 -- initializing
 SetTimeout(1000, function()
+    while not GlobalState["esx_vehicleshop:vehicles"] do
+        Wait(500)
+        ESX.Trace("Waiting for GlobalState[\"esx_vehicleshop:vehicles\"]", "trace", Config.Debug)
+    end
+
     for key in pairs(Config.VehicleShops) do
         setupVehicleShop(key)
     end
