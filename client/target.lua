@@ -1,36 +1,30 @@
 Target = {}
 
-function Target.addPed(entity, data)
-    local optionId = ("%s:open_shop_%s:%s"):format(cache.resource, data.vehicleShopKey, data.representativePedIndex)
-
-    exports["ox_target"]:addLocalEntity(entity, {
-        {
-            name = optionId,
-            label = "Open Vehicle Shop",
-            icon = "fa-solid fa-shop",
-            distance = 4,
-            onSelect = function()
-                OpenShopMenu(data)
-            end
-        }
-    })
-
-    return optionId
-end
-
-function Target.removePed(entity, optionId)
-    return exports["ox_target"]:removeLocalEntity(entity, optionId)
-end
-
 function Target.addNetId(netId, data)
+    local onSelect
+    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local optionId = ("%s:shop[%s][%s][%s]"):format(cache.resource, data.vehicleShopKey, data.representativeCategory, data.representativeIndex)
+
+    if data.representativeCategory == "RepresentativePeds" then
+        data.representativePedIndex = data.representativeIndex
+        onSelect = function()
+            local representativeCoords = vehicleShopData[data.representativeCategory][data.representativeIndex].Coords
+            data.currentDistance = #(cache.coords - vector3(representativeCoords?.x, representativeCoords?.y, representativeCoords?.z))
+
+            OpenShopMenu(data)
+        end
+    elseif data.representativeCategory == "RepresentativeVehicles" then
+        data.representativeVehicleIndex = data.representativeIndex
+        onSelect = function() --[[TODO]] end
+    end
 
     exports["ox_target"]:addEntity(netId, {
         {
             name = optionId,
-            label = "TEMP",
-            -- icon = "fa-solid fa-shop",
-            distance = 4,
+            label = ("Browse %s's Catalog"):format(vehicleShopData?.Label),
+            icon = "fa-solid fa-shop",
+            distance = 3,
+            onSelect = onSelect
         }
     })
 

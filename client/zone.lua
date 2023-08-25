@@ -22,44 +22,6 @@ local function createBlip(zoneKey)
     return blip
 end
 
-function zone.configurePed(action, data)
-    -- if data?.representativeCategory ~= "RepresentativePeds" then return end
-
-    -- local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-
-    -- local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
-    -- local cachePed = pointData.pedEntity
-
-    -- if cachePed then
-    --     if DoesEntityExist(cachePed) then DeletePed(cachePed) end
-
-    --     pointData.pedEntity = nil
-    -- end
-
-    -- if action == "enter" then
-    --     local representativePedData = vehicleShopData.RepresentativePeds[data.representativePedIndex]
-    --     local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
-    --     pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
-
-    --     lib.requestModel(pedModel, 1000000)
-
-    --     local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
-
-    --     SetPedFleeAttributes(pedEntity, 2, true)
-    --     SetBlockingOfNonTemporaryEvents(pedEntity, true)
-    --     SetPedCanRagdollFromPlayerImpact(pedEntity, false)
-    --     SetPedDiesWhenInjured(pedEntity, false)
-    --     FreezeEntityPosition(pedEntity, true)
-    --     SetEntityInvincible(pedEntity, true)
-    --     SetPedCanPlayAmbientAnims(pedEntity, false)
-
-    --     pointData.pedEntity = pedEntity
-    --     pointData.pedTargetId = Target.addPed(pedEntity, data)
-    -- elseif action == "exit" then
-    --     Target.removePed(pointData.pedEntity, pointData.pedTargetId)
-    -- end
-end
-
 function zone.configureVehicle(action, data)
     -- if data?.representativeCategory ~= "RepresentativeVehicles" then return end
 
