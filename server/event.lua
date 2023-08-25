@@ -146,8 +146,7 @@ end)
 
 local playersNearPoints = {}
 
-RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopKey, representativeCategory, representativeIndex)
-    local _source = source
+local enteredRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)
     local vehicleShopData = Config.VehicleShops[shopKey]
 
     if not vehicleShopData then return ESX.Trace(("Player(%s) tried to enter Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
@@ -175,7 +174,7 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
     local _playersNearPoints = playersNearPoints[shopKey][representativeCategory][representativeIndex]
 
     if _playersNearPoints[_source] then
-        return ESX.Trace(("Player(%s) has already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+        return --[[ESX.Trace(("Player(%s) has already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)]]
     end
 
     local playerPed = GetPlayerPed(_source)
@@ -185,7 +184,7 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
     if playerDistToRepresentative > representative.Distance + 5.0 then -- not superly strict comparison
-        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "warning", true)
+        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "warning", true)]]
     end
 
     local shouldHandleRepresentatives = _playersNearPoints() == 0
@@ -218,11 +217,9 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
     end
 
     playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = entity
-end)
+end
 
-RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKey, representativeCategory, representativeIndex)
-    local _source = source
-
+local exitedRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)
     if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to exit Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
     if not playersNearPoints[shopKey][representativeCategory] then return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
     if not playersNearPoints[shopKey][representativeCategory][representativeIndex] then
@@ -232,7 +229,7 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
     local _playersNearPoints = playersNearPoints[shopKey]?[representativeCategory]?[representativeIndex]
 
     if not _playersNearPoints[_source] then
-        return ESX.Trace(("Player(%s) has not already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+        return --[[ESX.Trace(("Player(%s) has not already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)]]
     end
 
     local playerPed = GetPlayerPed(_source)
@@ -243,7 +240,7 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
     if playerDistToRepresentative < representative.Distance - 5.0 then -- not superly strict comparison
-        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "error", true)
+        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "warning", true)]]
     end
 
     _playersNearPoints[_source] = nil
@@ -260,6 +257,35 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
     if DoesEntityExist(entity) then
         DeleteEntity(entity)
     end
+end
+
+local queues = {}
+local queueRunning = false
+
+local ensureQueue = function(func, ...)
+    table.insert(queues, { func = func, args = { ... } })
+
+    if queueRunning then return end
+
+    queueRunning = true
+
+    while #queues > 0 do
+        queues[1].func(table.unpack(queues[1].args))
+        table.remove(queues, 1)
+    end
+
+    queueRunning = false
+end
+
+RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(...)
+    local _source = source
+
+    ensureQueue(enteredRepresentativePoint, _source, ...)
+end)
+RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(...)
+    local _source = source
+
+    ensureQueue(exitedRepresentativePoint, _source, ...)
 end)
 
 AddEventHandler("playerDropped", function(playerId)
