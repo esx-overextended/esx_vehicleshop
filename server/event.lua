@@ -84,20 +84,17 @@ local enteredRepresentativePoint = function(_source, shopKey, representativeCate
         entity = CreatePed(0, pedModel, representative.Coords.x, representative.Coords.y, representative.Coords.z, representative.Coords.w, false, true)
 
         if not entity then return end
-
-        Entity(entity).state:set("esx_vehicleshop:handlePedRepresentative", { coords = representative.Coords, vehicleShopKey = shopKey, representativeCategory = representativeCategory, representativeIndex = representativeIndex }, true)
     elseif representativeCategory == "RepresentativeVehicles" then
         local vehicleModel = GetRandomVehicleModelFromShop(shopKey)
         entity = ESX.OneSync.SpawnVehicle(vehicleModel, vector3(representative.Coords.x, representative.Coords.y, representative.Coords.z), representative.Coords.w)
 
         if not entity then return end
-
-        FreezeEntityPosition(entity, true)
-
-        Entity(entity).state:set("esx_vehicleshop:handleVehicleRepresentative", { coords = representative.Coords, vehicleShopKey = shopKey, representativeCategory = representativeCategory, representativeIndex = representativeIndex }, true)
     end
 
     playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = entity
+
+    FreezeEntityPosition(entity, true)
+    Entity(entity).state:set("esx_vehicleshop:handleRepresentative", { coords = representative.Coords, vehicleShopKey = shopKey, representativeCategory = representativeCategory, representativeIndex = representativeIndex }, true)
 end
 
 local exitedRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)

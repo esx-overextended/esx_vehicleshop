@@ -57,92 +57,52 @@ Config.VehicleShops = {
             Size = 0.8,
             Color = 0
         },
-        RepresentativeVehicles = {
+        RepresentativePeds = {
             {
-                Model = `adder`,
-                Coords = vector4(-1262.909, -353.173, 36.772, 178.694),
+                Model = `S_F_M_Shop_HIGH`, -- optional - if omitted, it will use the Config.DefaultPed
+                Coords = vector4(-1252.37, -349.14, 35.89, 119.05),
                 Distance = 30.0,
                 Marker = {                                          -- optional
                     Type = 36,                                      -- optional
                     Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
                     Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1262.909, -353.173, 37.772),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1267.627, -355.330, 36.772, 239.634),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1267.627, -355.330, 37.772),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1271.299, -359.559, 36.487, 261.21),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1271.299, -359.559, 37.772),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1269.559, -364.349, 36.608, 319.256),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1269.559, -364.349, 37.772),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1249.098, -350.528, 40.163, 206.351),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1249.098, -350.528, 41.163),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1246.203, -354.344, 40.163, 117.634),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1246.203, -354.344, 41.163),  -- optional
-                    DrawDistance = 25.0                             -- optional
-                }
-            },
-            {
-                Model = `adder`,
-                Coords = vector4(-1244.934, -358.844, 40.163, 26.534),
-                Distance = 30.0,
-                Marker = {                                          -- optional
-                    Type = 36,                                      -- optional
-                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
-                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
-                    Coords = vector3(-1244.934, -358.844, 41.163),  -- optional
-                    DrawDistance = 25.0                             -- optional
+                    Coords = vector3(-1252.37, -349.14, 37.89),     -- optional
+                    DrawDistance = 28.0                             -- optional
                 }
             },
         },
+        RepresentativeVehicles = {
+            {
+                Coords = vector4(-1262.909, -353.173, 36.772, 178.694),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1267.627, -355.330, 36.772, 239.634),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1271.299, -359.559, 36.487, 261.21),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1269.559, -364.349, 36.608, 319.256),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1249.098, -350.528, 40.163, 206.351),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1246.203, -354.344, 40.163, 117.634),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1244.934, -358.844, 40.163, 26.534),
+                Distance = 100.0,
+            },
+        },
+        VehiclePreviewCoords = vector4(-1256.1, -366.80, 36.74, 297.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
+        VehicleSpawnCoordsAfterPurchase = vector4(-1250.24, -358.39, 36.5, 264.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
     },
     ["beach_bike"] = {
         Categories = { "cycles" },
@@ -175,9 +135,9 @@ Config.VehicleShops = {
 
 Config.SellPoints = {
     {
-        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "super", "suvs", "vans" }, -- optional
-        Label = nil,                                                                                                                              -- optional
-        Blip = {                                                                                                                                  -- optional
+        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "suvs", "vans" }, -- optional
+        Label = nil,                                                                                                                     -- optional
+        Blip = {                                                                                                                         -- optional
             Active = true,
             Type = 810,
             Size = 0.7,
@@ -189,6 +149,24 @@ Config.SellPoints = {
             Color = { r = 120, g = 0, b = 0, a = 100 },
             Coords = vector3(-36.29, -1088.59, 25.4),
             DrawDistance = 20.0
+        },
+        ResellPercentage = 40
+    },
+    {
+        Categories = { "super" }, -- optional
+        Label = nil,              -- optional
+        Blip = {                  -- optional
+            Active = true,
+            Type = 810,
+            Size = 0.7,
+            Color = 1
+        },
+        Marker = {
+            Type = 1,
+            Size = { x = 2.5, y = 2.5, z = 1.5 },
+            Color = { r = 120, g = 0, b = 0, a = 100 },
+            Coords = vector3(-1223.58, -347.97, 36.33),
+            DrawDistance = 30.0
         },
         ResellPercentage = 40
     },

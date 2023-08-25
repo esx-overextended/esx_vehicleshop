@@ -64,7 +64,6 @@ local function spawnPreviewVehicle(vehicleModel, atCoords)
 
     SetModelAsNoLongerNeeded(vehicleModel)
     SetVehRadioStation(vehicleEntity, "OFF")
-    SetVehicleNeedsToBeHotwired(vehicleEntity, false)
     freezeEntity(true, vehicleEntity, atCoords)
 
     return vehicleEntity
@@ -263,7 +262,6 @@ function OpenShopMenu(data)
             end
 
             freezeEntity(true, cache.ped, vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase)
-            freezeEntity(false)
 
             local doesNetIdExist, timeout = false, 0
 
@@ -272,6 +270,8 @@ function OpenShopMenu(data)
                 timeout += 1
                 Wait(0)
             end
+
+            freezeEntity(false)
 
             local vehicleEntity = doesNetIdExist and NetworkGetEntityFromNetworkId(vehicleNetId)
 

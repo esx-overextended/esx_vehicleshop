@@ -207,7 +207,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local distanceToSellPoint = sellPointCoords and #(vector3(sellPointCoords.x, sellPointCoords.y, sellPointCoords.z) - playerCoords)
 
     if not distanceToSellPoint or math.floor(distanceToSellPoint) ~= math.floor(distance) then
-        ESX.Trace(("Player(%s) distance to the sell:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(source, sellPointIndex, distance, distanceToSellPoint), "warning", true)
+        ESX.Trace(("Player(%s) distance to the sell:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(source, sellPointIndex, distance, distanceToSellPoint), "warning", Config.Debug)
         return false
     end
 
