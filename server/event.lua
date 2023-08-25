@@ -143,3 +143,135 @@ RegisterServerEvent("esx_vehicleshop:sellVehicle", function(data)
 
     lib.notify(source, { title = "ESX Vehicle Sell", description = message, type = "success" })
 end)
+
+local playersNearPoints = {}
+
+RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopKey, representativeCategory, representativeIndex)
+    local _source = source
+    local vehicleShopData = Config.VehicleShops[shopKey]
+
+    if not vehicleShopData then return ESX.Trace(("Player(%s) tried to enter Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
+    if not vehicleShopData[representativeCategory] then return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
+    if not vehicleShopData[representativeCategory][representativeIndex] then
+        return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+    end
+
+    -- building table structure
+    playersNearPoints[shopKey] = playersNearPoints[shopKey] or {}
+    playersNearPoints[shopKey][representativeCategory] = playersNearPoints[shopKey][representativeCategory] or {}
+    playersNearPoints[shopKey][representativeCategory]["Entities"] = playersNearPoints[shopKey][representativeCategory]["Entities"] or {}
+    playersNearPoints[shopKey][representativeCategory][representativeIndex] = playersNearPoints[shopKey][representativeCategory][representativeIndex] or setmetatable({}, {
+        __call = function(self)
+            local count = 0
+
+            for _ in pairs(self) do
+                count += 1
+            end
+
+            return count
+        end
+    })
+
+    local _playersNearPoints = playersNearPoints[shopKey][representativeCategory][representativeIndex]
+
+    if _playersNearPoints[_source] then
+        return ESX.Trace(("Player(%s) has already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+    end
+
+    local playerPed = GetPlayerPed(_source)
+    local playerCoords = GetEntityCoords(playerPed)
+    local representative = vehicleShopData[representativeCategory][representativeIndex]
+    local representativeCoords = representative.Coords
+    local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
+
+    if playerDistToRepresentative > representative.Distance and playerDistToRepresentative > representative.Distance - 1.0 and playerDistToRepresentative > representative.Distance + 1.0 then -- not superly strict comparison
+        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "error", true)
+    end
+
+    local shouldHandleRepresentatives = _playersNearPoints() == 0
+
+    _playersNearPoints[_source] = true
+
+    ESX.Trace(("Player(%s) entered Shop[%s][%s][%s]."):format(_source, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
+
+    if not shouldHandleRepresentatives then return end
+
+    local entity
+
+    if representativeCategory == "RepresentativePeds" then
+        local pedModel = representative.Model or Config.DefaultPed --[[@as number | string]]
+        pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
+        entity = CreatePed(0, pedModel, representative.Coords.x, representative.Coords.y, representative.Coords.z, representative.Coords.w, false, true)
+
+        while not DoesEntityExist(entity) do Wait(0) end
+
+        Entity(entity).state:set("esx_vehicleshop:handlePedRepresentative", true, true)
+    elseif representativeCategory == "RepresentativeVehicles" then
+        local vehicleModel = GetRandomVehicleModelFromShop(shopKey)
+        entity = ESX.OneSync.SpawnVehicle(vehicleModel, vector3(representative.Coords.x, representative.Coords.y, representative.Coords.z), representative.Coords.w)
+
+        if not entity then return end
+
+        Entity(entity).state:set("esx_vehicleshop:handleVehicleRepresentative", true, true)
+    end
+
+    playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = entity
+end)
+
+RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKey, representativeCategory, representativeIndex)
+    local _source = source
+
+    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to exit Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
+    if not playersNearPoints[shopKey][representativeCategory] then return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
+    if not playersNearPoints[shopKey][representativeCategory][representativeIndex] then
+        return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+    end
+
+    local _playersNearPoints = playersNearPoints[shopKey]?[representativeCategory]?[representativeIndex]
+
+    if not _playersNearPoints[_source] then
+        return ESX.Trace(("Player(%s) has not already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+    end
+
+    local playerPed = GetPlayerPed(_source)
+    local playerCoords = GetEntityCoords(playerPed)
+    local vehicleShopData = Config.VehicleShops[shopKey]
+    local representative = vehicleShopData[representativeCategory][representativeIndex]
+    local representativeCoords = representative.Coords
+    local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
+
+    if playerDistToRepresentative < representative.Distance and playerDistToRepresentative < representative.Distance - 1.0 and playerDistToRepresentative < representative.Distance + 1.0 then -- not superly strict comparison
+        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "error", true)
+    end
+
+    _playersNearPoints[_source] = nil
+
+    ESX.Trace(("Player(%s) exited Shop[%s][%s][%s]."):format(_source, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
+
+    local shouldHandleRepresentatives = _playersNearPoints() == 0
+
+    if not shouldHandleRepresentatives then return end
+
+    local entity = playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex]
+
+    if representativeCategory == "RepresentativePeds" then
+        if DoesEntityExist(entity) then DeleteEntity(entity) end
+    elseif representativeCategory == "RepresentativeVehicles" then
+        ESX.DeleteVehicle(entity)
+    end
+end)
+
+local function onResourceStop(resource)
+    if resource ~= cache.resource then return end
+
+    for _, data in pairs(playersNearPoints) do
+        for _, data2 in pairs(data) do
+            for _, entity in pairs(data2["Entities"]) do
+                if DoesEntityExist(entity) then DeleteEntity(entity) end
+            end
+        end
+    end
+end
+
+AddEventHandler("onResourceStop", onResourceStop)
+AddEventHandler("onServerResourceStop", onResourceStop)

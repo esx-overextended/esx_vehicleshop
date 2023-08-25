@@ -111,6 +111,40 @@ function GetVehicleCategoryByModel(model)
     end
 end
 
+---@param vehicleShopKey string
+---@return number
+function GetRandomVehicleModelFromShop(vehicleShopKey)
+    local vehicleModel
+    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+
+    while not vehicleModel do
+        local found = false
+        local randomVehicle = vehicles[math.random(0, #vehicles)]
+
+        if type(vehicleShopData.Categories) == "table" and next(vehicleShopData.Categories) then
+            for i = 1, #vehicleShopData.Categories do
+                local category = vehicleShopData.Categories[i]
+
+                if randomVehicle?.category == category then
+                    found = true
+                    break
+                end
+            end
+        elseif randomVehicle then
+            found = true
+        end
+
+        if found then
+            vehicleModel = randomVehicle.model
+            break
+        end
+
+        Wait(0)
+    end
+
+    return vehicleModel
+end
+
 ---@param source number
 ---@param vehicle number
 ---@param sellPointIndex number

@@ -23,82 +23,84 @@ local function createBlip(zoneKey)
 end
 
 function zone.configurePed(action, data)
-    if data?.representativeCategory ~= "RepresentativePeds" then return end
+    -- if data?.representativeCategory ~= "RepresentativePeds" then return end
 
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
+    -- local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
-    local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
-    local cachePed = pointData.pedEntity
+    -- local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
+    -- local cachePed = pointData.pedEntity
 
-    if cachePed then
-        if DoesEntityExist(cachePed) then DeletePed(cachePed) end
+    -- if cachePed then
+    --     if DoesEntityExist(cachePed) then DeletePed(cachePed) end
 
-        pointData.pedEntity = nil
-    end
+    --     pointData.pedEntity = nil
+    -- end
 
-    if action == "enter" then
-        local representativePedData = vehicleShopData.RepresentativePeds[data.representativePedIndex]
-        local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
-        pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
+    -- if action == "enter" then
+    --     local representativePedData = vehicleShopData.RepresentativePeds[data.representativePedIndex]
+    --     local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
+    --     pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
 
-        lib.requestModel(pedModel, 1000000)
+    --     lib.requestModel(pedModel, 1000000)
 
-        local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
+    --     local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
 
-        SetPedFleeAttributes(pedEntity, 2, true)
-        SetBlockingOfNonTemporaryEvents(pedEntity, true)
-        SetPedCanRagdollFromPlayerImpact(pedEntity, false)
-        SetPedDiesWhenInjured(pedEntity, false)
-        FreezeEntityPosition(pedEntity, true)
-        SetEntityInvincible(pedEntity, true)
-        SetPedCanPlayAmbientAnims(pedEntity, false)
+    --     SetPedFleeAttributes(pedEntity, 2, true)
+    --     SetBlockingOfNonTemporaryEvents(pedEntity, true)
+    --     SetPedCanRagdollFromPlayerImpact(pedEntity, false)
+    --     SetPedDiesWhenInjured(pedEntity, false)
+    --     FreezeEntityPosition(pedEntity, true)
+    --     SetEntityInvincible(pedEntity, true)
+    --     SetPedCanPlayAmbientAnims(pedEntity, false)
 
-        pointData.pedEntity = pedEntity
-        pointData.pedTargetId = Target.addPed(pedEntity, data)
-    elseif action == "exit" then
-        Target.removePed(pointData.pedEntity, pointData.pedTargetId)
-    end
+    --     pointData.pedEntity = pedEntity
+    --     pointData.pedTargetId = Target.addPed(pedEntity, data)
+    -- elseif action == "exit" then
+    --     Target.removePed(pointData.pedEntity, pointData.pedTargetId)
+    -- end
 end
 
 function zone.configureVehicle(action, data)
-    if data?.representativeCategory ~= "RepresentativeVehicles" then return end
+    -- if data?.representativeCategory ~= "RepresentativeVehicles" then return end
 
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
+    -- local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
-    local pointData = vehicleShopZones[data.vehicleShopKey]["representativeVehicles"][data.representativeVehicleIndex]
-    local cacheVehicle = pointData.vehicleEntity
+    -- local pointData = vehicleShopZones[data.vehicleShopKey]["representativeVehicles"][data.representativeVehicleIndex]
+    -- local cacheVehicle = pointData.vehicleEntity
 
-    if cacheVehicle then
-        if DoesEntityExist(cacheVehicle) then
-            SetModelAsNoLongerNeeded(GetEntityModel(cacheVehicle))
-            DeleteVehicle(cacheVehicle)
-        end
+    -- if cacheVehicle then
+    --     if DoesEntityExist(cacheVehicle) then
+    --         SetModelAsNoLongerNeeded(GetEntityModel(cacheVehicle))
+    --         DeleteVehicle(cacheVehicle)
+    --     end
 
-        pointData.vehicleEntity = nil
-    end
+    --     pointData.vehicleEntity = nil
+    -- end
 
-    if action == "enter" then
-        local representativeVehicleData = vehicleShopData.RepresentativeVehicles[data.representativeVehicleIndex]
+    -- if action == "enter" then
+    --     local representativeVehicleData = vehicleShopData.RepresentativeVehicles[data.representativeVehicleIndex]
 
-        local vehicleModel = GetRandomVehicleModelFromShop(data.vehicleShopKey)
+    --     local vehicleModel = GetRandomVehicleModelFromShop(data.vehicleShopKey)
 
-        vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel --[[@as number]]
+    --     vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel --[[@as number]]
 
-        lib.requestModel(vehicleModel, 1000000)
+    --     lib.requestModel(vehicleModel, 1000000)
 
-        local vehicleEntity = CreateVehicle(vehicleModel, representativeVehicleData.Coords.x, representativeVehicleData.Coords.y, representativeVehicleData.Coords.z, representativeVehicleData.Coords.w, false, false)
+    --     local vehicleEntity = CreateVehicle(vehicleModel, representativeVehicleData.Coords.x, representativeVehicleData.Coords.y, representativeVehicleData.Coords.z, representativeVehicleData.Coords.w, false, false)
 
-        FreezeEntityPosition(vehicleEntity, true)
-        SetEntityInvincible(vehicleEntity, true)
+    --     FreezeEntityPosition(vehicleEntity, true)
+    --     SetEntityInvincible(vehicleEntity, true)
 
-        pointData.vehicleEntity = vehicleEntity
-        -- TODO: add target
-    elseif action == "exit" then
-        -- TODO: remove added target
-    end
+    --     pointData.vehicleEntity = vehicleEntity
+    --     -- TODO: add target
+    -- elseif action == "exit" then
+    --     -- TODO: remove added target
+    -- end
 end
 
 local function configureZone(action, data)
+    TriggerServerEvent(("esx_vehicleshop:%sedRepresentativePoint"):format(action), data.vehicleShopKey, data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex)
+
     for functionName in pairs(zone) do
         zone[functionName](action, data)
     end
