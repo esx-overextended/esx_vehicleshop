@@ -205,14 +205,16 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
 
         while not DoesEntityExist(entity) do Wait(0) end
 
-        Entity(entity).state:set("esx_vehicleshop:handlePedRepresentative", true, true)
+        Entity(entity).state:set("esx_vehicleshop:handlePedRepresentative", representative.Coords, true)
     elseif representativeCategory == "RepresentativeVehicles" then
         local vehicleModel = GetRandomVehicleModelFromShop(shopKey)
         entity = ESX.OneSync.SpawnVehicle(vehicleModel, vector3(representative.Coords.x, representative.Coords.y, representative.Coords.z), representative.Coords.w)
 
         if not entity then return end
 
-        Entity(entity).state:set("esx_vehicleshop:handleVehicleRepresentative", true, true)
+        FreezeEntityPosition(entity, true)
+
+        Entity(entity).state:set("esx_vehicleshop:handleVehicleRepresentative", representative.Coords, true)
     end
 
     playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = entity
@@ -253,11 +255,10 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
     if not shouldHandleRepresentatives then return end
 
     local entity = playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex]
+    playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = nil
 
-    if representativeCategory == "RepresentativePeds" then
-        if DoesEntityExist(entity) then DeleteEntity(entity) end
-    elseif representativeCategory == "RepresentativeVehicles" then
-        ESX.DeleteVehicle(entity)
+    if DoesEntityExist(entity) then
+        DeleteEntity(entity)
     end
 end)
 
@@ -267,7 +268,9 @@ local function onResourceStop(resource)
     for _, data in pairs(playersNearPoints) do
         for _, data2 in pairs(data) do
             for _, entity in pairs(data2["Entities"]) do
-                if DoesEntityExist(entity) then DeleteEntity(entity) end
+                if DoesEntityExist(entity) then
+                    DeleteEntity(entity)
+                end
             end
         end
     end
