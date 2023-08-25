@@ -190,7 +190,7 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
 
     local shouldHandleRepresentatives = _playersNearPoints() == 0
 
-    _playersNearPoints[_source] = true
+    _playersNearPoints[tonumber(_source)] = true
 
     ESX.Trace(("Player(%s) entered Shop[%s][%s][%s]."):format(_source, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
 
@@ -259,6 +259,36 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
 
     if DoesEntityExist(entity) then
         DeleteEntity(entity)
+    end
+end)
+
+AddEventHandler("playerDropped", function(playerId)
+    playerId = tonumber(playerId) --[[@as number]]
+
+    for shopKey, data in pairs(playersNearPoints) do
+        for representativeCategory, categoryData in pairs(data) do
+            for representativeIndex, sources in pairs(categoryData) do
+                if type(representativeIndex) == "number" then -- check for not "ENTITIES" index
+                    for src in pairs(sources) do
+                        if src == playerId then
+                            playersNearPoints[shopKey][representativeCategory][representativeIndex][playerId] = nil
+
+                            ESX.Trace(("Removed Player(%s) data from playersNearPoints[%s][%s][%s][%s]"):format(playerId, shopKey, representativeCategory, representativeIndex, playerId), "trace", Config.Debug)
+
+                            if playersNearPoints[shopKey][representativeCategory][representativeIndex]() == 0 then
+                                local entity = playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex]
+                                playersNearPoints[shopKey][representativeCategory]["Entities"][representativeIndex] = nil
+
+                                if DoesEntityExist(entity) then
+                                    DeleteEntity(entity)
+                                    ESX.Trace(("Removed Entity(%s) data from playersNearPoints[%s][%s][\"Entities\"][%s]"):format(entity, shopKey, representativeCategory, representativeIndex), "trace", Config.Debug)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 end)
 
