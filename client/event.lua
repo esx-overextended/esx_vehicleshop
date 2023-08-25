@@ -1,5 +1,5 @@
 AddStateBagChangeHandler("esx_vehicleshop:handlePedRepresentative", "", function(bagName, key, value)
-    if not value then return end
+    if type(value) ~= "table" then return end
 
     local netId = tonumber(bagName:gsub("entity:", ""), 10)
     local doesNetIdExist, timeout = false, 0
@@ -20,8 +20,8 @@ AddStateBagChangeHandler("esx_vehicleshop:handlePedRepresentative", "", function
 
     SetEntityInvincible(entity, true)
     FreezeEntityPosition(entity, true)
-    SetEntityCoords(entity, value.x, value.y, value.z, false, false, false, true)
-    SetEntityHeading(entity, value.w)
+    SetEntityCoords(entity, value.coords?.x, value.coords?.y, value.coords?.z, false, false, false, true)
+    SetEntityHeading(entity, value.coords?.w)
     SetPedDiesWhenInjured(entity, false)
     SetPedFleeAttributes(entity, 2, true)
     SetPedCanPlayAmbientAnims(entity, false)
@@ -29,10 +29,12 @@ AddStateBagChangeHandler("esx_vehicleshop:handlePedRepresentative", "", function
     SetPedRelationshipGroupHash(entity, `PLAYER`)
     SetBlockingOfNonTemporaryEvents(entity, true)
     SetPedCanRagdollFromPlayerImpact(entity, false)
+
+    Target.addNetId(netId, value)
 end)
 
 AddStateBagChangeHandler("esx_vehicleshop:handleVehicleRepresentative", "", function(bagName, key, value)
-    if type(value) ~= "vector4" then return end
+    if type(value) ~= "table" then return end
 
     local netId = tonumber(bagName:gsub("entity:", ""), 10)
     local doesNetIdExist, timeout = false, 0
@@ -53,8 +55,10 @@ AddStateBagChangeHandler("esx_vehicleshop:handleVehicleRepresentative", "", func
 
     SetEntityInvincible(entity, true)
     FreezeEntityPosition(entity, true)
-    SetEntityCoords(entity, value.x, value.y, value.z, false, false, false, true)
-    SetEntityHeading(entity, value.w)
+    SetEntityCoords(entity, value.coords?.x, value.coords?.y, value.coords?.z, false, false, false, true)
+    SetEntityHeading(entity, value.coords?.w)
     SetVehicleCanBeUsedByFleeingPeds(entity, false)
     SetEntityProofs(entity, true, true, true, false, true, true, true, true)
+
+    Target.addNetId(netId, value)
 end)

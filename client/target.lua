@@ -21,3 +21,18 @@ end
 function Target.removePed(entity, optionId)
     return exports["ox_target"]:removeLocalEntity(entity, optionId)
 end
+
+function Target.addNetId(netId, data)
+    local optionId = ("%s:shop[%s][%s][%s]"):format(cache.resource, data.vehicleShopKey, data.representativeCategory, data.representativeIndex)
+
+    exports["ox_target"]:addEntity(netId, {
+        {
+            name = optionId,
+            label = "TEMP",
+            -- icon = "fa-solid fa-shop",
+            distance = 4,
+        }
+    })
+
+    return optionId
+end
