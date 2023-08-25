@@ -184,8 +184,8 @@ RegisterServerEvent("esx_vehicleshop:enteredRepresentativePoint", function(shopK
     local representativeCoords = representative.Coords
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
-    if playerDistToRepresentative > representative.Distance and playerDistToRepresentative > representative.Distance - 1.0 and playerDistToRepresentative > representative.Distance + 1.0 then -- not superly strict comparison
-        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "error", true)
+    if playerDistToRepresentative > representative.Distance + 5.0 then -- not superly strict comparison
+        return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "warning", true)
     end
 
     local shouldHandleRepresentatives = _playersNearPoints() == 0
@@ -242,7 +242,7 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(shopKe
     local representativeCoords = representative.Coords
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
-    if playerDistToRepresentative < representative.Distance and playerDistToRepresentative < representative.Distance - 1.0 and playerDistToRepresentative < representative.Distance + 1.0 then -- not superly strict comparison
+    if playerDistToRepresentative < representative.Distance - 5.0 then -- not superly strict comparison
         return ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.Distance, playerDistToRepresentative), "error", true)
     end
 
