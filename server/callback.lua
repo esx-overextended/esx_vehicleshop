@@ -1,18 +1,20 @@
 ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
-    if not data?.vehicleShopKey or not data?.representativePedIndex or not data?.currentDistance then return cb() end
+    if not data?.vehicleShopKey or (not data?.representativePedIndex and not data?.representativeVehicleIndex) or not data?.currentDistance then return cb() end
 
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local representativePedCoords = vehicleShopData.RepresentativePeds?[data.representativePedIndex]?.Coords
-    local distanceToRepresentativePed = representativePedCoords and #(vector3(representativePedCoords.x, representativePedCoords.y, representativePedCoords.z) - playerCoords)
+    local representativeCoords = vehicleShopData[data.representativeCategory]?[data.representativePedIndex or data.representativeVehicleIndex]?.Coords
+    local distanceToRepresentative = representativeCoords and #(vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z) - playerCoords)
 
-    if not distanceToRepresentativePed or math.floor(distanceToRepresentativePed) ~= math.floor(data.currentDistance) then
-        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.representativePedIndex, data.currentDistance, distanceToRepresentativePed), "error", true)
+    if not distanceToRepresentative or math.floor(distanceToRepresentative) ~= math.floor(data.currentDistance) then
+        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.representativePedIndex or data.representativeVehicleIndex, data.currentDistance, distanceToRepresentative), "error",
+            true)
         return cb()
     end
 
     local menuOptions, menuOptionsCount = {}, 0
+    local allVehicleData = ESX.GetVehicleData()
     local _, allCategories = GetVehiclesAndCategories()
     local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
 
@@ -26,21 +28,44 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
             for j = 1, #categoryVehicles do
                 local vehicle = categoryVehicles[j]
 
-                optionsCount += 1
-                options[optionsCount] = {
-                    label = vehicle.name,
-                    value = vehicle.model,
-                    price = vehicle.price,
-                    category = category.name,
-                    description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price))
-                }
+                if data.representativeCategory == "RepresentativePeds" then
+                    optionsCount += 1
+                    options[optionsCount] = {
+                        label = vehicle.name,
+                        value = vehicle.model,
+                        price = vehicle.price,
+                        category = category.name,
+                        description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price))
+                    }
+                elseif data.representativeCategory == "RepresentativeVehicles" then
+                    optionsCount += 1
+                    options[optionsCount] = {
+                        title = vehicle.name,
+                        model = vehicle.model,
+                        price = vehicle.price,
+                        category = category.name,
+                        categoryLabel = category.label,
+                        description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price)),
+                        image = allVehicleData[vehicle.model]?.image
+                    }
+                end
             end
 
-            menuOptionsCount += 1
-            menuOptions[menuOptionsCount] = {
-                label = category.name,
-                values = options
-            }
+            if data.representativeCategory == "RepresentativePeds" then
+                menuOptionsCount += 1
+                menuOptions[menuOptionsCount] = {
+                    label = category.name,
+                    values = options
+                }
+            elseif data.representativeCategory == "RepresentativeVehicles" then
+                menuOptionsCount += 1
+                menuOptions[menuOptionsCount] = {
+                    title = category.label,
+                    args = { subMenuOptions = options },
+                    menu = ("esx_vehicleshop:shopMenu_%s"):format(category.name),
+                    arrow = true
+                }
+            end
         end
     end
 
@@ -111,6 +136,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, 
             iconColor = "green",
             serverEvent = "esx_vehicleshop:sellVehicle",
             args = data,
+            arrow = true
         }
     }
 

@@ -1,4 +1,4 @@
-local zone, vehicleShopZones, vehicleSellPoints = {}, {}, {}
+local vehicleShopZones, vehicleSellPoints = {}, {}
 
 local function createBlip(zoneKey)
     local isVehicleShop = type(zoneKey) == "string" and true or false
@@ -22,52 +22,8 @@ local function createBlip(zoneKey)
     return blip
 end
 
-function zone.configureVehicle(action, data)
-    -- if data?.representativeCategory ~= "RepresentativeVehicles" then return end
-
-    -- local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-
-    -- local pointData = vehicleShopZones[data.vehicleShopKey]["representativeVehicles"][data.representativeVehicleIndex]
-    -- local cacheVehicle = pointData.vehicleEntity
-
-    -- if cacheVehicle then
-    --     if DoesEntityExist(cacheVehicle) then
-    --         SetModelAsNoLongerNeeded(GetEntityModel(cacheVehicle))
-    --         DeleteVehicle(cacheVehicle)
-    --     end
-
-    --     pointData.vehicleEntity = nil
-    -- end
-
-    -- if action == "enter" then
-    --     local representativeVehicleData = vehicleShopData.RepresentativeVehicles[data.representativeVehicleIndex]
-
-    --     local vehicleModel = GetRandomVehicleModelFromShop(data.vehicleShopKey)
-
-    --     vehicleModel = type(vehicleModel) == "string" and joaat(vehicleModel) or vehicleModel --[[@as number]]
-
-    --     lib.requestModel(vehicleModel, 1000000)
-
-    --     local vehicleEntity = CreateVehicle(vehicleModel, representativeVehicleData.Coords.x, representativeVehicleData.Coords.y, representativeVehicleData.Coords.z, representativeVehicleData.Coords.w, false, false)
-
-    --     FreezeEntityPosition(vehicleEntity, true)
-    --     SetEntityInvincible(vehicleEntity, true)
-
-    --     pointData.vehicleEntity = vehicleEntity
-    --     -- TODO: add target
-    -- elseif action == "exit" then
-    --     -- TODO: remove added target
-    -- end
-end
-
 local function configureZone(action, data)
     TriggerServerEvent(("esx_vehicleshop:%sedRepresentativePoint"):format(action), data.vehicleShopKey, data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex)
-
-    for functionName in pairs(zone) do
-        zone[functionName](action, data)
-    end
-
-    collectgarbage("collect")
 end
 
 local function onVehicleShopRepresentativeEnter(data)
@@ -219,8 +175,6 @@ local function onSellPointEnter(data)
     })
 
     vehicleSellPoints[data.sellPointIndex]["marker"] = markerSphere
-
-    collectgarbage("collect")
 end
 
 local function onSellPointExit(data)
@@ -228,8 +182,6 @@ local function onSellPointExit(data)
     vehicleSellPoints[data.sellPointIndex]["marker"] = nil
 
     markerSphere:remove()
-
-    collectgarbage("collect")
 end
 
 local function onSellPointInside(data)
@@ -298,4 +250,7 @@ SetTimeout(1000, function()
     for i = 1, #Config.SellPoints do
         setupSellPoint(i)
     end
+
+    Wait(5000)
+    collectgarbage("collect")
 end)
