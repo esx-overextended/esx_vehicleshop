@@ -212,3 +212,50 @@ end
 
 AddEventHandler("onResourceStop", onResourceStop)
 AddEventHandler("onServerResourceStop", onResourceStop)
+
+
+local changeVehicleRepresentative = function(_source, shopKey, representativeIndex, vehicleModel)
+    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
+    if not playersNearPoints[shopKey]["RepresentativeVehicles"] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, "RepresentativeVehicles"), "error", true) end
+    if not playersNearPoints[shopKey]["RepresentativeVehicles"][representativeIndex] then
+        return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, "RepresentativeVehicles", representativeIndex), "error", true)
+    end
+
+    if not DoesVehicleExistInShop(vehicleModel, shopKey) then return CheatDetected(_source) end
+
+    local vehicleShopData = Config.VehicleShops[shopKey]
+    local representative = vehicleShopData["RepresentativeVehicles"][representativeIndex]
+
+    local entity = playersNearPoints[shopKey]["RepresentativeVehicles"]["Entities"][representativeIndex]
+    local _type = type(entity)
+
+    if _type == "number" then
+        playersNearPoints[shopKey]["RepresentativeVehicles"]["Entities"][representativeIndex] = "changing"
+
+        if DoesEntityExist(entity) then
+            DeleteEntity(entity)
+            Wait(0)
+        end
+
+        entity = ESX.OneSync.SpawnVehicle(vehicleModel, vector3(representative.Coords.x, representative.Coords.y, representative.Coords.z), representative.Coords.w)
+
+        if not entity then return end
+
+        FreezeEntityPosition(entity, true)
+        Entity(entity).state:set("esx_vehicleshop:handleRepresentative", { coords = representative.Coords, vehicleShopKey = shopKey, representativeCategory = "RepresentativeVehicles", representativeIndex = representativeIndex }, true)
+
+        ESX.Trace(("Player(%s) changed representative of Shop[%s][%s][%s]."):format(_source, shopKey, "RepresentativeVehicles", representativeIndex), "info", Config.Debug)
+
+        playersNearPoints[shopKey]["RepresentativeVehicles"]["Entities"][representativeIndex] = entity
+    elseif _type ~= "string" then
+        return ESX.Trace("Weird", "trace", true)
+    end
+end
+
+RegisterServerEvent("esx_vehicleshop:changeVehicleRepresentative", function(data)
+    local _source = source
+
+    if not data?.vehicleShopKey or not data?.representativeVehicleIndex or not data?.vehicleModel then return end
+
+    changeVehicleRepresentative(_source, data.vehicleShopKey, data.representativeVehicleIndex, data.vehicleModel)
+end)

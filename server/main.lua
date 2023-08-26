@@ -18,9 +18,6 @@ function RefreshVehiclesAndCategories()
     end
 
     vehicles = validVehicles
-
-    GlobalState:set("esx_vehicleshop:vehicles", vehicles, true)
-    GlobalState:set("esx_vehicleshop:categories", categories, true)
 end
 
 function GetVehiclesAndCategories()
@@ -244,6 +241,29 @@ function MakeVehicleEmpty(vehicleEntity, maxNoSeats)
         end
 
         Wait(0)
+    end
+
+    return false
+end
+
+function DoesVehicleExistInShop(vehicleModel, shopkey)
+    local vehicleShopData = Config.VehicleShops[shopkey]
+    local shopCategories = vehicleShopData?.Categories
+
+    if not shopCategories then
+        return vehicleShopData and true or false
+    end
+
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+
+        if vehicle.model == vehicleModel then
+            for j = 1, #shopCategories do
+                if vehicle.category == shopCategories[j] then
+                    return true
+                end
+            end
+        end
     end
 
     return false

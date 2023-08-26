@@ -238,11 +238,6 @@ end
 
 -- initializing
 SetTimeout(1000, function()
-    while not GlobalState["esx_vehicleshop:vehicles"] do
-        Wait(500)
-        ESX.Trace("Waiting for GlobalState[\"esx_vehicleshop:vehicles\"]", "trace", Config.Debug)
-    end
-
     for key in pairs(Config.VehicleShops) do
         setupVehicleShop(key)
     end

@@ -318,13 +318,14 @@ function OpenShopMenu(data)
         lib.showMenu("esx_vehicleshop:shopMenu")
     elseif data.representativeCategory == "RepresentativeVehicles" then
         for i = 1, #menuOptions do
-            local option = menuOptions[i]
+            local categoryOption = menuOptions[i]
 
-            if type(option.args?.subMenuOptions) == "table" then
-                local vehicleOptions = option.args.subMenuOptions
+            if type(categoryOption.args?.subMenuOptions) == "table" then
+                local vehicleOptions = categoryOption.args.subMenuOptions
 
                 for j = 1, #vehicleOptions do
                     local _option = vehicleOptions[j]
+
                     lib.registerContext({
                         id = ("esx_vehicleshop:shopMenu_%s"):format(_option.category),
                         title = _option.categoryLabel,

@@ -38,6 +38,10 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                         description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price))
                     }
                 elseif data.representativeCategory == "RepresentativeVehicles" then
+                    local _data = json.decode(json.encode(data))
+
+                    _data.vehicleModel = vehicle.model
+
                     optionsCount += 1
                     options[optionsCount] = {
                         title = vehicle.name,
@@ -46,7 +50,9 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                         category = category.name,
                         categoryLabel = category.label,
                         description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price)),
-                        image = allVehicleData[vehicle.model]?.image
+                        image = allVehicleData[vehicle.model]?.image,
+                        serverEvent = "esx_vehicleshop:changeVehicleRepresentative",
+                        args = _data
                     }
                 end
             end
