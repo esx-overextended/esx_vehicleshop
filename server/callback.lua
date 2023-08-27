@@ -8,8 +8,8 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
     local distanceToRepresentative = representativeCoords and #(vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z) - playerCoords)
 
     if not distanceToRepresentative or math.floor(distanceToRepresentative) ~= math.floor(data.currentDistance) then
-        ESX.Trace(("Player distance to the %s:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(data.vehicleShopKey, data.representativePedIndex or data.representativeVehicleIndex, data.currentDistance, distanceToRepresentative), "error",
-            true)
+        ESX.Trace(("Player(%s) distance to %s:%s was supposed to be (^2%s^7) but it is (^1%s^7)!"):format(source, data.vehicleShopKey, data.representativePedIndex or data.representativeVehicleIndex, data.currentDistance, distanceToRepresentative),
+            "warning", Config.Debug)
         return cb()
     end
 
@@ -35,7 +35,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                         value = vehicle.model,
                         price = vehicle.price,
                         category = category.name,
-                        description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price))
+                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price))
                     }
                 elseif data.representativeCategory == "RepresentativeVehicles" then
                     local _data = json.decode(json.encode(data))
@@ -49,7 +49,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                         price = vehicle.price,
                         category = category.name,
                         categoryLabel = category.label,
-                        description = ("Price: $%s"):format(ESX.Math.GroupDigits(vehicle.price)),
+                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price)),
                         image = allVehicleData[vehicle.model]?.image,
                         serverEvent = "esx_vehicleshop:changeVehicleRepresentative",
                         args = _data
@@ -100,8 +100,6 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         return cb()
     end
 
-    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, ("Purchase of vehicle (%s) from %s"):format(vehicleData.name, vehicleShopData.Label))
-
     local spawnCoords = vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
     local xVehicle = ESX.CreateVehicle({
         model = vehicleData.model,
@@ -113,6 +111,8 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true)
         return cb()
     end
+
+    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, locale("purchase_transaction_info", vehicleData.name, vehicleShopData.Label, xVehicle.plate, ESX.Math.GroupDigits(vehicleData.price)))
 
     return cb(xVehicle.netId)
 end)
@@ -132,12 +132,12 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, 
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
     local contextOptions = {
         {
-            title = ("Selling %s"):format(("%s %s"):format(vehicleData?.make, vehicleData?.name)),
+            title = locale("selling_vehicle", ("%s %s"):format(vehicleData?.make, vehicleData?.name)),
             icon = "fa-solid fa-square-poll-horizontal",
-            description = ("- Factory Price: $%s\n- Sell Price: $%s"):format(originalVehiclePrice, resellPrice)
+            description = ("- %s\n- %s"):format(locale("vehicle_factory_price", originalVehiclePrice), locale("vehicle_sell_price", resellPrice))
         },
         {
-            title = ("Confirm to Sell & Receive $%s"):format(resellPrice),
+            title = locale("sell_confirmation", resellPrice),
             icon = "fa-solid fa-circle-check",
             iconColor = "green",
             serverEvent = "esx_vehicleshop:sellVehicle",

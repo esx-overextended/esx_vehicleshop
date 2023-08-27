@@ -13,7 +13,7 @@ function Target.addNetId(netId, data)
     exports["ox_target"]:addEntity(netId, {
         {
             name = optionId,
-            label = ("Browse %s's Catalog"):format(vehicleShopData?.Label),
+            label = locale("browse_shop_catalog", vehicleShopData?.Label),
             icon = "fa-solid fa-shop",
             distance = 3,
             onSelect = function()
@@ -41,7 +41,7 @@ function Target.addEntity(entity, data)
     exports["ox_target"]:addLocalEntity(entity, {
         {
             name = optionId,
-            label = ("Browse %s's Catalog"):format(vehicleShopData?.Label),
+            label = locale("browse_shop_catalog", vehicleShopData?.Label),
             icon = "fa-solid fa-shop",
             distance = 3,
             onSelect = function()

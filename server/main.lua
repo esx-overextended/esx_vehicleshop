@@ -151,15 +151,20 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local playerPed = GetPlayerPed(source)
 
     if not vehicle or vehicle <= 0 or GetPedInVehicleSeat(vehicle, -1) ~= playerPed then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "You must be in the driver seat of a vehicle to be able to sell it!", type = "warning" })
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("must_be_driver_to_sell") }, "warning")
         return false
     end
 
     local xVehicle = ESX.GetVehicle(vehicle)
     local xPlayer = ESX.GetPlayerFromId(source)
 
-    if not xVehicle or xPlayer?.identifier ~= xVehicle.owner then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "You cannot sell this vehicle!", type = "error" })
+    if not xVehicle then
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle") }, "error")
+        return false
+    end
+
+    if xPlayer.identifier ~= xVehicle.owner then
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle_no_ownership") }, "error")
         return false
     end
 
@@ -188,12 +193,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
                 end
             end
 
-            lib.notify(source, {
-                title = "ESX Vehicle Sell",
-                description = ("This vehicle cannot be sold here!\nAccepted categories are: %s"):format(table.concat(authorizedCategories, ", ")),
-                type = "warning",
-                duration = 5000
-            })
+            ESX.ShowNotification(source, { locale("vehicle_sell"), ("%s\n\n%s"):format(locale("cannot_sell_vehicle_type"), locale("accepted_vehicle_categories_to_sell", table.concat(authorizedCategories, ", "))) }, "warning", 5000)
 
             return false
         end
@@ -211,7 +211,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
 
     if not originalVehiclePrice then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "This vehicle's factory price is unknown!", type = "error" })
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle_show_accepted") }, "error")
         return false
     end
 

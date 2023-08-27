@@ -1,3 +1,5 @@
+lib.locale()
+
 Config = {}
 
 Config.Debug = false
@@ -49,7 +51,7 @@ Config.VehicleShops = {
     },
     ["pdm_highend"] = {
         Categories = { "super" }, -- optional
-        Label = "Premium Deluxe Motorsport",
+        Label = "Premium Deluxe Motorsport - High End",
         Blip = {                  -- optional
             Active = true,
             Coords = vector3(-1256.20, -362.24, 36.89),

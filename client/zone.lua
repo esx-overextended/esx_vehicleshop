@@ -15,7 +15,7 @@ local function createBlip(zoneKey)
     SetBlipScale(blip, blipData.Size)
     SetBlipColour(blip, blipData.Color)
     SetBlipAsShortRange(blip, true)
-    AddTextEntry(blipName, data.Label or not isVehicleShop and "Vehicle Sell") ---@diagnostic disable-line: param-type-mismatch
+    AddTextEntry(blipName, data.Label or not isVehicleShop and locale("vehicle_sell")) ---@diagnostic disable-line: param-type-mismatch
     BeginTextCommandSetBlipName(blipName)
     EndTextCommandSetBlipName(blip)
 
@@ -134,11 +134,11 @@ local function setupVehicleShop(vehicleShopKey)
 end
 
 local function onSellPointMarkerEnter(_)
-    lib.showTextUI("[E] - Press to sell vehicle")
+    ESX.TextUI(locale("on_sale_point_marker_enter"))
 end
 
 local function onSellPointMarkerExit(_)
-    lib.hideTextUI()
+    ESX.HideUI()
 
     local menuId = lib.getOpenContextMenu()
 

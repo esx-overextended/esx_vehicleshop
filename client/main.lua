@@ -170,13 +170,13 @@ function OpenShopMenu(data)
             lib.setMenuOptions("esx_vehicleshop:shopMenu", menuOptions[selectedIndex], selectedIndex)
 
             if not spawnedVehicle then
-                lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Cannot load vehicle (%s)!"):format(selectedVehicleLabel), type = "error" })
+                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("cannot_load_vehicle", selectedVehicleLabel) }, "error")
                 return lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex)
             end
 
             local accounts = { ["bank"] = true, ["money"] = true }
             local options = { {
-                label = "Vehicle Color",
+                label = locale("vehicle_color"),
             } }
 
             for i = 1, #ESX.PlayerData.accounts do
@@ -195,14 +195,14 @@ function OpenShopMenu(data)
                 local canUseThisAccount = account.money >= selectedVehicle.price
 
                 options[#options + 1] = {
-                    label = ("Purchase with %s"):format(account.label),
+                    label = locale("purchase_with", account.label),
                     icon = getAccountIcon(account.name),
                     iconColor = canUseThisAccount and "green" or "red",
                     close = false,
                     accountName = account.name,
                     accountLabel = account.label,
                     canUseThisAccount = canUseThisAccount,
-                    description = ("Price: $%s"):format(selectedVehicle.price)
+                    description = locale("vehicle_price", selectedVehicle.price)
                 }
 
                 ::skipLoop::
@@ -219,8 +219,8 @@ function OpenShopMenu(data)
                     local vehicleCustomSecondaryColor = GetIsVehicleSecondaryColourCustom(spawnedVehicle) and rgbToHex(GetVehicleCustomSecondaryColour(spawnedVehicle)) or nil
 
                     local input = lib.inputDialog(selectedVehicleLabel, {
-                        { type = "color", label = "Primary Color",   default = vehicleCustomPrimaryColor,   format = "hex", required = true },
-                        { type = "color", label = "Secondary Color", default = vehicleCustomSecondaryColor, format = "hex", required = true }
+                        { type = "color", label = locale("vehicle_primary_color"),   default = vehicleCustomPrimaryColor,   format = "hex", required = true },
+                        { type = "color", label = locale("vehicle_secondary_color"), default = vehicleCustomSecondaryColor, format = "hex", required = true }
                     })
 
                     if input?[1] then SetVehicleCustomPrimaryColour(spawnedVehicle, hexToRGB(input[1])) end
@@ -232,11 +232,7 @@ function OpenShopMenu(data)
                 local optionData = options[_selectedIndex]
 
                 if not optionData?.canUseThisAccount then
-                    return lib.notify({
-                        title = ("%s Vehicle Shop"):format(vehicleShopData?.Label),
-                        description = ("Your %s account does not have enough money in it to purchase %s!"):format(optionData?.accountLabel, selectedVehicleLabel),
-                        type = "error"
-                    })
+                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("not_enough_money", optionData?.accountLabel, selectedVehicleLabel) }, "error")
                 end
 
                 local currentMenu = lib.getOpenMenu()
@@ -244,8 +240,8 @@ function OpenShopMenu(data)
                 lib.hideMenu(false)
 
                 local alertDialog = lib.alertDialog({
-                    header = ("**%s Purchase Confirmation**"):format(selectedVehicleLabel),
-                    content = ("Are you sure you want to purchase the vehicle %s for $%s with %s?"):format(selectedVehicleLabel, selectedVehicle.price, optionData?.accountLabel),
+                    header = ("**%s**" --[[making it bold]]):format(locale("purchase_confirmation_header", selectedVehicleLabel)),
+                    content = locale("purchase_confirmation_content", selectedVehicleLabel, selectedVehicle.price, optionData?.accountLabel),
                     centered = true,
                     cancel = true
                 })
@@ -263,7 +259,7 @@ function OpenShopMenu(data)
                 })
 
                 if not vehicleNetId then
-                    return lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("The purchase of %s could NOT be completed..."):format(selectedVehicleLabel), type = "error" })
+                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("purchase_not_complete", selectedVehicleLabel) }, "error")
                 end
 
                 for _ = 1, 2 do
@@ -295,6 +291,8 @@ function OpenShopMenu(data)
                         break
                     end
                 end
+
+                -- lib.notify({ title = locale("vehicle_shop", vehicleShopData?.Label), description = locale("purchase_confirmed", selectedVehicleLabel), type = "success" })
             end)
 
             lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")
@@ -361,9 +359,10 @@ function OpenSellMenu(data)
 
     lib.registerContext({
         id = "esx_vehicleshop:sellMenu",
-        title = "ESX Vehicle Sell",
+        title = locale("vehicle_sell"),
         options = contextOptions
     })
+
     lib.showContext("esx_vehicleshop:sellMenu")
 end
 

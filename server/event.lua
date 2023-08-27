@@ -15,14 +15,14 @@ RegisterServerEvent("esx_vehicleshop:sellVehicle", function(data)
     local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
 
-    if not MakeVehicleEmpty(xVehicle.entity, vehicleData.seats) then return lib.notify(source, { title = "ESX Vehicle Sell", description = "An error happenned during the sell process!", type = "error" }) end
+    if not MakeVehicleEmpty(xVehicle.entity, vehicleData.seats) then return xPlayer?.showNotification and xPlayer.showNotification({ locale("vehicle_sell"), locale("sell_error") }, "error") end
 
-    local message = ("Sold %s (Plate: %s) for $%s"):format(("%s %s"):format(vehicleData?.make, vehicleData?.name), xVehicle.plate, resellPrice)
+    local message = locale("sell_transaction_info", ("%s %s"):format(vehicleData?.make, vehicleData?.name), xVehicle.plate, resellPrice)
 
     xVehicle.delete(true)
     xPlayer.addAccountMoney("bank", resellPrice, message)
 
-    lib.notify(source, { title = "ESX Vehicle Sell", description = message, type = "success" })
+    xPlayer.showNotification({ locale("vehicle_sell"), message }, "success")
 end)
 
 local playersNearPoints = {}
