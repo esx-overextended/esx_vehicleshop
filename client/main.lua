@@ -165,6 +165,10 @@ function OpenShopMenu(data)
             local selectedVehicle = menuOptions[selectedIndex]?.values?[selectedScrollIndex]
             local selectedVehicleLabel = selectedVehicle?.label
 
+            menuOptions[selectedIndex].defaultIndex = selectedScrollIndex
+
+            lib.setMenuOptions("esx_vehicleshop:shopMenu", menuOptions[selectedIndex], selectedIndex)
+
             if not spawnedVehicle then
                 lib.notify({ title = ("%s Vehicle Shop"):format(vehicleShopData?.Label), description = ("Cannot load vehicle (%s)!"):format(selectedVehicleLabel), type = "error" })
                 return lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex)
