@@ -292,7 +292,7 @@ function OpenShopMenu(data)
                     end
                 end
 
-                -- lib.notify({ title = locale("vehicle_shop", vehicleShopData?.Label), description = locale("purchase_confirmed", selectedVehicleLabel), type = "success" })
+                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("purchase_confirmed", selectedVehicleLabel, ESX.Math.GroupDigits(selectedVehicle.price)) }, "success", 5000)
             end)
 
             lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")

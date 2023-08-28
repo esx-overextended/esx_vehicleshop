@@ -83,7 +83,7 @@ Config.VehicleShops = {
                 Distance = 100.0,
             },
             {
-                Coords = vector4(-1271.299, -359.559, 36.0, 261.21),
+                Coords = vector4(-1271.13, -358.78, 36.272, 255.12),
                 Distance = 100.0,
             },
             {
