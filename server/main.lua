@@ -10,7 +10,9 @@ function RefreshVehiclesAndCategories()
         local vehicleData = vehicles[i]
 
         if not generatedVehicles[vehicleData?.model] then
-            ESX.Trace(("Vehicle (^5%s^7) with the model of (^1%s^7) is ^1NOT KNOWN^7 to the framework!\nEither it's an invalid model or has not been parsed/generated yet!\n"):format(vehicleData?.name, vehicleData?.model), "warning", true)
+            ESX.Trace(
+                ("Vehicle (^5%s^7) with the model of (^1%s^7) is ^1NOT KNOWN^7 to the framework!\nEither it's an invalid model or has not been parsed/generated yet! Refer to the documentation(https://esx-overextended.github.io/es_extended/Commands/parseVehicles)\n")
+                :format(vehicleData?.name, vehicleData?.model), "warning", true)
         else
             validVehiclesCount += 1
             validVehicles[validVehiclesCount] = vehicleData

@@ -1,30 +1,7 @@
----@param bagName string
----@return number?, number?
-local function getEntityFromBag(bagName)
-    local netId = tonumber(bagName:gsub("entity:", ""), 10)
-    local doesNetIdExist, timeout = false, 0
-
-    while not doesNetIdExist and timeout < 1000 do
-        Wait(10)
-        timeout += 1
-        doesNetIdExist = NetworkDoesEntityExistWithNetworkId(netId)
-    end
-
-    if not doesNetIdExist then
-        return ESX.Trace(("Statebag (^3%s^7) timed out after waiting %s ticks for entity creation on %s!"):format(bagName, timeout, key), "warning", true)
-    end
-
-    local entity = NetworkDoesEntityExistWithNetworkId(netId) and NetworkGetEntityFromNetworkId(netId)
-
-    if not entity or entity == 0 then return end
-
-    return entity, netId
-end
-
 AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(bagName, _, value)
     if type(value) ~= "table" then return end
 
-    local entity, netId = getEntityFromBag(bagName)
+    local entity, netId = ESX.OneSync.GetEntityFromStateBag(bagName)
 
     if not entity or not netId then return end
 
@@ -46,6 +23,6 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
         SetVehicleCanBeUsedByFleeingPeds(entity, false)
     end
 
-    -- Target.addNetId(netId, value) -- Should works but sometimes isn't! Removes the target after couple of seconds
+    -- Target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
     Target.addEntity(entity, value) -- Same code as above but works...
 end)

@@ -166,7 +166,7 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(...)
     ensureQueue(exitedRepresentativePoint, _source, ...)
 end)
 
-AddEventHandler("playerDropped", function(playerId)
+local function onPlayerDropped(playerId)
     playerId = tonumber(playerId) --[[@as number]]
 
     for shopKey, data in pairs(playersNearPoints) do
@@ -194,7 +194,9 @@ AddEventHandler("playerDropped", function(playerId)
             end
         end
     end
-end)
+end
+
+AddEventHandler("playerDropped", onPlayerDropped)
 
 local function onResourceStop(resource)
     if resource ~= cache.resource then return end
