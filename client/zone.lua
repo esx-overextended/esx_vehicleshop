@@ -1,4 +1,4 @@
-local zone, vehicleShopZones, vehicleSellPoints = {}, {}, {}
+local vehicleShopZones, vehicleSellPoints = {}, {}
 
 local function createBlip(zoneKey)
     local isVehicleShop = type(zoneKey) == "string" and true or false
@@ -15,106 +15,72 @@ local function createBlip(zoneKey)
     SetBlipScale(blip, blipData.Size)
     SetBlipColour(blip, blipData.Color)
     SetBlipAsShortRange(blip, true)
-    AddTextEntry(blipName, data.Label or not isVehicleShop and "Vehicle Sell") ---@diagnostic disable-line: param-type-mismatch
+    AddTextEntry(blipName, data.Label or not isVehicleShop and locale("vehicle_sell")) ---@diagnostic disable-line: param-type-mismatch
     BeginTextCommandSetBlipName(blipName)
     EndTextCommandSetBlipName(blip)
 
     return blip
 end
 
-function zone.configurePed(action, data)
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-
-    local pointData = vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex]
-    local cachePed = pointData.pedEntity
-
-    if cachePed then
-        if DoesEntityExist(cachePed) then DeletePed(cachePed) end
-
-        pointData.pedEntity = nil
-    end
-
-    if action == "enter" then
-        local representativePedData = vehicleShopData.RepresentativePeds[data.representativePedIndex]
-        local pedModel = representativePedData.Model or Config.DefaultPed --[[@as number | string]]
-        pedModel = type(pedModel) == "string" and joaat(pedModel) or pedModel --[[@as number]]
-
-        lib.requestModel(pedModel, 1000)
-
-        local pedEntity = CreatePed(0, pedModel, representativePedData.Coords.x, representativePedData.Coords.y, representativePedData.Coords.z, representativePedData.Coords.w, false, true)
-
-        SetPedFleeAttributes(pedEntity, 2, true)
-        SetBlockingOfNonTemporaryEvents(pedEntity, true)
-        SetPedCanRagdollFromPlayerImpact(pedEntity, false)
-        SetPedDiesWhenInjured(pedEntity, false)
-        FreezeEntityPosition(pedEntity, true)
-        SetEntityInvincible(pedEntity, true)
-        SetPedCanPlayAmbientAnims(pedEntity, false)
-
-        pointData.pedEntity = pedEntity
-        pointData.pedTargetId = Target.addPed(pedEntity, data)
-    elseif action == "exit" then
-        Target.removePed(pointData.pedEntity, pointData.pedTargetId)
-    end
-end
-
 local function configureZone(action, data)
-    for functionName in pairs(zone) do
-        zone[functionName](action, data)
-    end
-
-    collectgarbage("collect")
+    TriggerServerEvent(("esx_vehicleshop:%sedRepresentativePoint"):format(action), data.vehicleShopKey, data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex)
 end
 
-local function onVehicleShopRepresentativePedEnter(data)
-    if vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
+local function onVehicleShopRepresentativeEnter(data)
+    local representativeCategory = data?.representativeCategory:gsub("^%u", string.lower)
+    local representativeIndex = data.representativePedIndex or data.representativeVehicleIndex
 
-    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = true
+    if vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange then return end
 
-    if Config.Debug then print("entered buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = true
+
+    ESX.Trace("entered buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
 
     configureZone("enter", data)
 end
 
-local function onVehicleShopRepresentativePedExit(data)
-    if not vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange then return end
+local function onVehicleShopRepresentativeExit(data)
+    local representativeCategory = data?.representativeCategory:gsub("^%u", string.lower)
+    local representativeIndex = data.representativePedIndex or data.representativeVehicleIndex
 
-    vehicleShopZones[data.vehicleShopKey]["representativePeds"][data.representativePedIndex].inRange = false
+    if not vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange then return end
 
-    if Config.Debug then print("exited buy point index of", data.representativePedIndex, "of vehicle shop zone", data.vehicleShopKey) end
+    vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = false
+
+    ESX.Trace("exited buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
 
     configureZone("exit", data)
 end
 
-local function onVehicleShopRepresentativePedInside(data)
+local function onVehicleShopRepresentativeInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local representativePed = vehicleShopData.RepresentativePeds[data.representativePedIndex]
+    local representative = vehicleShopData[data?.representativeCategory][data.representativePedIndex or data.representativeVehicleIndex]
 
-    if not representativePed.Marker.DrawDistance or data.currentDistance <= representativePed.Marker.DrawDistance then
+    if not representative.Marker.DrawDistance or data.currentDistance <= representative.Marker.DrawDistance then
         DrawMarker(
-            representativePed.Marker.Type or 1, --[[type]]
-            representativePed.Marker.Coords.x or representativePed.Coords.x, --[[posX]]
-            representativePed.Marker.Coords.y or representativePed.Coords.y, --[[posY]]
-            representativePed.Marker.Coords.z or representativePed.Coords.z, --[[posZ]]
+            representative.Marker.Type or 1, --[[type]]
+            representative.Marker.Coords.x or representative.Coords.x, --[[posX]]
+            representative.Marker.Coords.y or representative.Coords.y, --[[posY]]
+            representative.Marker.Coords.z or representative.Coords.z, --[[posZ]]
             0.0, --[[dirX]]
             0.0, --[[dirY]]
             0.0, --[[dirZ]]
             0.0, --[[rotX]]
             0.0, --[[rotY]]
             0.0, --[[rotZ]]
-            representativePed.Marker.Size.x or 1.5, --[[scaleX]]
-            representativePed.Marker.Size.y or 1.5, --[[scaleY]]
-            representativePed.Marker.Size.z or 1.5, --[[scaleZ]]
-            representativePed.Marker.Color.r or 255, --[[red]]
-            representativePed.Marker.Color.g or 255, --[[green]]
-            representativePed.Marker.Color.b or 255, --[[blue]]
-            representativePed.Marker.Color.a or 50, --[[alpha]]
-            representativePed.Marker.UpAndDown or false, --[[bobUpAndDown]]
-            representativePed.Marker.FaceCamera or true, --[[faceCamera]]
+            representative.Marker.Size.x or 1.5, --[[scaleX]]
+            representative.Marker.Size.y or 1.5, --[[scaleY]]
+            representative.Marker.Size.z or 1.5, --[[scaleZ]]
+            representative.Marker.Color.r or 255, --[[red]]
+            representative.Marker.Color.g or 255, --[[green]]
+            representative.Marker.Color.b or 255, --[[blue]]
+            representative.Marker.Color.a or 50, --[[alpha]]
+            representative.Marker.UpAndDown or false, --[[bobUpAndDown]]
+            representative.Marker.FaceCamera or true, --[[faceCamera]]
             2, --[[p19]]
-            representativePed.Marker.Rotate or false, --[[rotate]]
-            representativePed.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
-            representativePed.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
+            representative.Marker.Rotate or false, --[[rotate]]
+            representative.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
+            representative.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
             false --[[drawOnEnts]]
         )
     end
@@ -122,33 +88,57 @@ end
 
 local function setupVehicleShop(vehicleShopKey)
     local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+    local representativePeds, representativeVehicles
 
-    if type(vehicleShopData?.RepresentativePeds) ~= "table" then return end
+    if type(vehicleShopData.RepresentativePeds) == "table" then
+        representativePeds = {}
 
-    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), representativePeds = {} }
+        for i = 1, #vehicleShopData.RepresentativePeds do
+            local representativePedData = vehicleShopData.RepresentativePeds[i]
+            local point = lib.points.new({
+                coords = representativePedData.Coords,
+                distance = representativePedData.Distance,
+                onEnter = onVehicleShopRepresentativeEnter,
+                onExit = onVehicleShopRepresentativeExit,
+                nearby = representativePedData.Marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey = vehicleShopKey,
+                representativeCategory = "RepresentativePeds",
+                representativePedIndex = i
+            })
 
-    for i = 1, #vehicleShopData.RepresentativePeds do
-        local representativePedData = vehicleShopData.RepresentativePeds[i]
-        local point = lib.points.new({
-            coords = representativePedData.Coords,
-            distance = representativePedData.Distance,
-            onEnter = onVehicleShopRepresentativePedEnter,
-            onExit = onVehicleShopRepresentativePedExit,
-            nearby = representativePedData.Marker and onVehicleShopRepresentativePedInside,
-            vehicleShopKey = vehicleShopKey,
-            representativePedIndex = i
-        })
-
-        vehicleShopZones[vehicleShopKey]["representativePeds"][i] = { point = point, inRange = false, pedEntity = nil }
+            representativePeds[i] = { point = point, inRange = false, pedEntity = nil }
+        end
     end
+
+    if type(vehicleShopData.RepresentativeVehicles) == "table" then
+        representativeVehicles = {}
+
+        for i = 1, #vehicleShopData.RepresentativeVehicles do
+            local representativeVehicleData = vehicleShopData.RepresentativeVehicles[i]
+            local point = lib.points.new({
+                coords = representativeVehicleData.Coords,
+                distance = representativeVehicleData.Distance,
+                onEnter = onVehicleShopRepresentativeEnter,
+                onExit = onVehicleShopRepresentativeExit,
+                nearby = representativeVehicleData.Marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey = vehicleShopKey,
+                representativeCategory = "RepresentativeVehicles",
+                representativeVehicleIndex = i
+            })
+
+            representativeVehicles[i] = { point = point, inRange = false, vehicleEntity = nil }
+        end
+    end
+
+    vehicleShopZones[vehicleShopKey] = { blip = createBlip(vehicleShopKey), representativePeds = representativePeds, representativeVehicles = representativeVehicles }
 end
 
 local function onSellPointMarkerEnter(_)
-    lib.showTextUI("[E] - Press to sell vehicle")
+    ESX.TextUI(locale("on_sale_point_marker_enter"))
 end
 
 local function onSellPointMarkerExit(_)
-    lib.hideTextUI()
+    ESX.HideUI()
 
     local menuId = lib.getOpenContextMenu()
 
@@ -185,8 +175,6 @@ local function onSellPointEnter(data)
     })
 
     vehicleSellPoints[data.sellPointIndex]["marker"] = markerSphere
-
-    collectgarbage("collect")
 end
 
 local function onSellPointExit(data)
@@ -194,8 +182,6 @@ local function onSellPointExit(data)
     vehicleSellPoints[data.sellPointIndex]["marker"] = nil
 
     markerSphere:remove()
-
-    collectgarbage("collect")
 end
 
 local function onSellPointInside(data)
@@ -259,4 +245,7 @@ SetTimeout(1000, function()
     for i = 1, #Config.SellPoints do
         setupSellPoint(i)
     end
+
+    Wait(5000)
+    collectgarbage("collect")
 end)

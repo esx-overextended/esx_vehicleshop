@@ -10,7 +10,9 @@ function RefreshVehiclesAndCategories()
         local vehicleData = vehicles[i]
 
         if not generatedVehicles[vehicleData?.model] then
-            ESX.Trace(("Vehicle (^5%s^7) with the model of (^1%s^7) is ^1NOT KNOWN^7 to the framework!\nEither it's an invalid model or has not been parsed/generated yet!\n"):format(vehicleData?.name, vehicleData?.model), "warning", true)
+            ESX.Trace(
+                ("Vehicle (^5%s^7) with the model of (^1%s^7) is ^1NOT KNOWN^7 to the framework!\nEither it's an invalid model or has not been parsed/generated yet! Refer to the documentation(https://esx-overextended.github.io/es_extended/Commands/parseVehicles)\n")
+                :format(vehicleData?.name, vehicleData?.model), "warning", true)
         else
             validVehiclesCount += 1
             validVehicles[validVehiclesCount] = vehicleData
@@ -108,6 +110,40 @@ function GetVehicleCategoryByModel(model)
     end
 end
 
+---@param vehicleShopKey string
+---@return number
+function GetRandomVehicleModelFromShop(vehicleShopKey)
+    local vehicleModel
+    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
+
+    while not vehicleModel do
+        local found = false
+        local randomVehicle = vehicles[math.random(0, #vehicles)]
+
+        if type(vehicleShopData.Categories) == "table" and next(vehicleShopData.Categories) then
+            for i = 1, #vehicleShopData.Categories do
+                local category = vehicleShopData.Categories[i]
+
+                if randomVehicle?.category == category then
+                    found = true
+                    break
+                end
+            end
+        elseif randomVehicle then
+            found = true
+        end
+
+        if found then
+            vehicleModel = randomVehicle.model
+            break
+        end
+
+        Wait(0)
+    end
+
+    return vehicleModel
+end
+
 ---@param source number
 ---@param vehicle number
 ---@param sellPointIndex number
@@ -117,15 +153,20 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local playerPed = GetPlayerPed(source)
 
     if not vehicle or vehicle <= 0 or GetPedInVehicleSeat(vehicle, -1) ~= playerPed then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "You must be in the driver seat of a vehicle to be able to sell it!", type = "warning" })
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("must_be_driver_to_sell") }, "warning")
         return false
     end
 
     local xVehicle = ESX.GetVehicle(vehicle)
     local xPlayer = ESX.GetPlayerFromId(source)
 
-    if not xVehicle or xPlayer?.identifier ~= xVehicle.owner then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "You cannot sell this vehicle!", type = "error" })
+    if not xVehicle then
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle") }, "error")
+        return false
+    end
+
+    if xPlayer.identifier ~= xVehicle.owner then
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle_no_ownership") }, "error")
         return false
     end
 
@@ -154,12 +195,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
                 end
             end
 
-            lib.notify(source, {
-                title = "ESX Vehicle Sell",
-                description = ("This vehicle cannot be sold here!\nAccepted categories are: %s"):format(table.concat(authorizedCategories, ", ")),
-                type = "warning",
-                duration = 5000
-            })
+            ESX.ShowNotification(source, { locale("vehicle_sell"), ("%s\n\n%s"):format(locale("cannot_sell_vehicle_type"), locale("accepted_vehicle_categories_to_sell", table.concat(authorizedCategories, ", "))) }, "warning", 5000)
 
             return false
         end
@@ -170,14 +206,14 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local distanceToSellPoint = sellPointCoords and #(vector3(sellPointCoords.x, sellPointCoords.y, sellPointCoords.z) - playerCoords)
 
     if not distanceToSellPoint or math.floor(distanceToSellPoint) ~= math.floor(distance) then
-        ESX.Trace(("Player(%s) distance to the sell:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(source, sellPointIndex, distance, distanceToSellPoint), "warning", true)
+        ESX.Trace(("Player(%s) distance to the sell:%s was supposed to be (^2%s^7), but it is (^1%s^7)!"):format(source, sellPointIndex, distance, distanceToSellPoint), "warning", Config.Debug)
         return false
     end
 
     local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
 
     if not originalVehiclePrice then
-        lib.notify(source, { title = "ESX Vehicle Sell", description = "This vehicle's factory price is unknown!", type = "error" })
+        ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle_show_accepted") }, "error")
         return false
     end
 
@@ -207,6 +243,29 @@ function MakeVehicleEmpty(vehicleEntity, maxNoSeats)
         end
 
         Wait(0)
+    end
+
+    return false
+end
+
+function DoesVehicleExistInShop(vehicleModel, shopkey)
+    local vehicleShopData = Config.VehicleShops[shopkey]
+    local shopCategories = vehicleShopData?.Categories
+
+    if not shopCategories then
+        return vehicleShopData and true or false
+    end
+
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+
+        if vehicle.model == vehicleModel then
+            for j = 1, #shopCategories do
+                if vehicle.category == shopCategories[j] then
+                    return true
+                end
+            end
+        end
     end
 
     return false

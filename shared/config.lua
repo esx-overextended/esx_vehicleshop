@@ -1,3 +1,5 @@
+lib.locale()
+
 Config = {}
 
 Config.Debug = false
@@ -9,9 +11,9 @@ Config.DefaultVehicleSpawnCoordsAfterPurchase = vector4(133.25, -3210.30, 5.43, 
 
 Config.VehicleShops = {
     ["pdm"] = {
-        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "super", "suvs", "vans" }, -- optional
+        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "suvs", "vans" }, -- optional
         Label = "Premium Deluxe Motorsport",
-        Blip = {                                                                                                                                  -- optional
+        Blip = {                                                                                                                         -- optional
             Active = true,
             Coords = vector3(-46.08, -1098.30, 26.4),
             Type = 810,
@@ -47,6 +49,63 @@ Config.VehicleShops = {
         VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
         VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
     },
+    ["pdm_highend"] = {
+        Categories = { "super" }, -- optional
+        Label = "Premium Deluxe Motorsport - High End",
+        Blip = {                  -- optional
+            Active = true,
+            Coords = vector3(-1256.20, -362.24, 36.89),
+            Type = 810,
+            Size = 0.8,
+            Color = 0
+        },
+        RepresentativePeds = {
+            {
+                Model = `S_F_M_Shop_HIGH`, -- optional - if omitted, it will use the Config.DefaultPed
+                Coords = vector4(-1252.37, -349.14, 35.89, 119.05),
+                Distance = 30.0,
+                Marker = {                                          -- optional
+                    Type = 36,                                      -- optional
+                    Size = { x = 1.0, y = 1.0, z = 1.0 },           -- optional
+                    Color = { r = 120, g = 120, b = 240, a = 100 }, -- optional
+                    Coords = vector3(-1252.37, -349.14, 37.89),     -- optional
+                    DrawDistance = 28.0                             -- optional
+                }
+            },
+        },
+        RepresentativeVehicles = {
+            {
+                Coords = vector4(-1262.909, -353.173, 36.272, 178.694),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1267.627, -355.330, 36.272, 239.634),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1271.13, -358.78, 36.272, 255.12),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1269.559, -364.349, 36.108, 319.256),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1249.098, -350.528, 39.663, 206.351),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1246.203, -354.344, 39.663, 117.634),
+                Distance = 100.0,
+            },
+            {
+                Coords = vector4(-1244.934, -358.844, 39.663, 26.534),
+                Distance = 100.0,
+            },
+        },
+        VehiclePreviewCoords = vector4(-1256.1, -366.80, 36.74, 297.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
+        VehicleSpawnCoordsAfterPurchase = vector4(-1250.24, -358.39, 36.5, 264.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
+    },
     ["beach_bike"] = {
         Categories = { "cycles" },
         Label = "Bicycle Shop",
@@ -78,9 +137,9 @@ Config.VehicleShops = {
 
 Config.SellPoints = {
     {
-        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "super", "suvs", "vans" }, -- optional
-        Label = nil,                                                                                                                              -- optional
-        Blip = {                                                                                                                                  -- optional
+        Categories = { "compacts", "coupes", "motorcycles", "muscle", "offroad", "sedans", "sports", "sportsclassics", "suvs", "vans" }, -- optional
+        Label = nil,                                                                                                                     -- optional
+        Blip = {                                                                                                                         -- optional
             Active = true,
             Type = 810,
             Size = 0.7,
@@ -92,6 +151,24 @@ Config.SellPoints = {
             Color = { r = 120, g = 0, b = 0, a = 100 },
             Coords = vector3(-36.29, -1088.59, 25.4),
             DrawDistance = 20.0
+        },
+        ResellPercentage = 40
+    },
+    {
+        Categories = { "super" }, -- optional
+        Label = nil,              -- optional
+        Blip = {                  -- optional
+            Active = true,
+            Type = 810,
+            Size = 0.7,
+            Color = 1
+        },
+        Marker = {
+            Type = 1,
+            Size = { x = 2.5, y = 2.5, z = 1.5 },
+            Color = { r = 120, g = 0, b = 0, a = 100 },
+            Coords = vector3(-1223.58, -347.97, 36.33),
+            DrawDistance = 30.0
         },
         ResellPercentage = 40
     },
