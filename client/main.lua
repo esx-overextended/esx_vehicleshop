@@ -231,10 +231,18 @@ function OpenShopMenu(data)
             id = "esx_vehicleshop:shopMenu",
             title = vehicleShopData?.label,
             options = menuOptions,
-            onSideScroll = functions.onMenuChange,
-            onSelected = functions.onMenuChange,
-            onClose = functions.onMenuClose,
-        }, functions.onMenuSelect)
+            onSideScroll = function(...)
+                return functions:onMenuChange(...)
+            end,
+            onSelected = function(...)
+                return functions:onMenuChange(...)
+            end,
+            onClose = function()
+                return functions:onMenuClose()
+            end,
+        }, function(...)
+            return functions:onMenuSelect(...)
+        end)
 
         lib.showMenu("esx_vehicleshop:shopMenu")
     elseif data.representativeCategory == "representativeVehicles" then
