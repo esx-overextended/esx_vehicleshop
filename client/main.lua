@@ -207,7 +207,6 @@ function OpenShopMenu(data)
             utility.freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
 
             insideShop = false
-            onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
         end
 
         lib.registerMenu({
@@ -216,7 +215,10 @@ function OpenShopMenu(data)
             options = menuOptions,
             onSideScroll = onMenuChange,
             onSelected = onMenuChange,
-            onClose = onMenuClose
+            onClose = function()
+                onMenuClose()
+                onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
+            end
         }, onMenuSelect)
 
         lib.showMenu("esx_vehicleshop:shopMenu")
