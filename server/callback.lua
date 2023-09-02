@@ -100,7 +100,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
     end
 
     local playerCoords = xPlayer.getCoords()
-    local shopPreviewCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
+    local shopPreviewCoords = vehicleShopData.vehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
 
     if #(vector3(playerCoords.x, playerCoords.y, playerCoords.z) - vector3(shopPreviewCoords.x, shopPreviewCoords.y, shopPreviewCoords.z)) > 3 then
         CheatDetected(xPlayer.source)
@@ -115,7 +115,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         return cb()
     end
 
-    local spawnCoords = vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
+    local spawnCoords = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
     local xVehicle = ESX.CreateVehicle({
         model = vehicleData.model,
         owner = xPlayer.getIdentifier(),

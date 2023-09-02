@@ -231,11 +231,9 @@ local changeVehicleRepresentative = function(_source, shopKey, representativeInd
         return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, "representativeVehicles", representativeIndex), "error", true)
     end
 
-    if not DoesVehicleExistInShop(vehicleModel, shopKey) then return CheatDetected(_source) end
-
     local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
 
-    if not vehicleShopData then return CheatDetected(_source) end
+    if not vehicleShopData or not vehicleShopData:hasVehicle(vehicleModel) then return CheatDetected(_source) end
 
     local representative = vehicleShopData["representativeVehicles"][representativeIndex]
 

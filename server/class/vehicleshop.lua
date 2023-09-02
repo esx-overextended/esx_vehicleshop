@@ -1,7 +1,9 @@
 ---@class cVehicleShop : cZone
----@field categories string[]?
----@field representativePeds representative[]
----@field representativeVehicles representative[]
+---@field categories? string[]
+---@field representativePeds? representative[]
+---@field representativeVehicles? representative[]
+---@field vehiclePreviewCoords? vector4
+---@field vehicleSpawnCoordsAfterPurchase? vector4
 
 ---@class vehicleShop : cVehicleShop
 local vehicleShop = {}
@@ -78,6 +80,8 @@ return setmetatable({}, {
         object.categories = vehicleShopData.categories
         object.representativePeds = vehicleShopData.representativePeds
         object.representativeVehicles = vehicleShopData.representativeVehicles
+        object.vehiclePreviewCoords = vehicleShopData.vehiclePreviewCoords
+        object.vehicleSpawnCoordsAfterPurchase = vehicleShopData.vehicleSpawnCoordsAfterPurchase
 
         setmetatable(object, vehicleShop)
 

@@ -21,7 +21,7 @@ local function applyVehicleGenerator(state)
     vehicleGenerator(state, Config.DefaultVehiclePreviewCoords)
 
     for _, vehicleShopData in pairs(Config.VehicleShops) do
-        vehicleGenerator(state, vehicleShopData.VehiclePreviewCoords)
+        vehicleGenerator(state, vehicleShopData.vehiclePreviewCoords)
     end
 end
 

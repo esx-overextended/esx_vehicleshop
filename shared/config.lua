@@ -46,8 +46,8 @@ Config.VehicleShops = {
                 }
             },
         },
-        VehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
-        VehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
+        vehiclePreviewCoords = vector4(-47.5, -1097.2, 25.4, -20.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
+        vehicleSpawnCoordsAfterPurchase = vector4(-28.6, -1085.6, 25.5, 330.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
     },
     ["pdm_highend"] = {
         categories = { "super" }, -- optional
@@ -103,8 +103,8 @@ Config.VehicleShops = {
                 distance = 100.0,
             },
         },
-        VehiclePreviewCoords = vector4(-1256.1, -366.80, 36.74, 297.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
-        VehicleSpawnCoordsAfterPurchase = vector4(-1250.24, -358.39, 36.5, 264.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
+        vehiclePreviewCoords = vector4(-1256.1, -366.80, 36.74, 297.0),           -- optional - if omitted, it will use the Config.DefaultVehiclePreviewCoords
+        vehicleSpawnCoordsAfterPurchase = vector4(-1250.24, -358.39, 36.5, 264.0) -- optional - if omitted, it will use the Config.DefaultVehicleSpawnCoordsAfterPurchase
     },
     ["beach_bike"] = {
         categories = { "cycles" },
@@ -130,8 +130,8 @@ Config.VehicleShops = {
                 }
             },
         },
-        VehiclePreviewCoords = vector4(-1114.747192, -1687.094482, 3.752441, 34.015747),
-        VehicleSpawnCoordsAfterPurchase = vector4(-1096.457153, -1711.661499, 3.752441, 306.141724)
+        vehiclePreviewCoords = vector4(-1114.747192, -1687.094482, 3.752441, 34.015747),
+        vehicleSpawnCoordsAfterPurchase = vector4(-1096.457153, -1711.661499, 3.752441, 306.141724)
     }
 }
 

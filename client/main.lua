@@ -109,7 +109,7 @@ function OpenShopMenu(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
     if data.representativeCategory == "representativePeds" then
-        local collisionCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
+        local collisionCoords = vehicleShopData?.vehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
         local pedCoordsBeforeOpeningShopMenu = cache.coords
         local insideShop, isSpawning, spawnedVehicle = true, false, nil
 
@@ -267,7 +267,7 @@ function OpenShopMenu(data)
                     Wait(10)
                 end
 
-                freezeEntity(true, cache.ped, vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase)
+                freezeEntity(true, cache.ped, vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase)
 
                 local doesNetIdExist, timeout = false, 0
 
