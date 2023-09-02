@@ -11,7 +11,7 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
     SetEntityHeading(entity, value.coords?.w)
     SetEntityProofs(entity, true, true, true, false, true, true, true, true)
 
-    if value.representativeCategory == "RepresentativePeds" then
+    if value.representativeCategory == "representativePeds" then
         SetPedDiesWhenInjured(entity, false)
         SetPedFleeAttributes(entity, 2, true)
         SetPedCanPlayAmbientAnims(entity, false)
@@ -19,7 +19,7 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
         SetPedRelationshipGroupHash(entity, `PLAYER`)
         SetBlockingOfNonTemporaryEvents(entity, true)
         SetPedCanRagdollFromPlayerImpact(entity, false)
-    elseif value.representativeCategory == "RepresentativeVehicles" then
+    elseif value.representativeCategory == "representativeVehicles" then
         SetVehicleCanBeUsedByFleeingPeds(entity, false)
     end
 

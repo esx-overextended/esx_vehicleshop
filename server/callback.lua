@@ -13,7 +13,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
         return cb()
     end
 
-    local representativeCoords = vehicleShopData[data.representativeCategory]?[data.representativePedIndex or data.representativeVehicleIndex]?.Coords
+    local representativeCoords = vehicleShopData[data.representativeCategory]?[data.representativePedIndex or data.representativeVehicleIndex]?.coords
     local distanceToRepresentative = representativeCoords and #(vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z) - playerCoords)
 
     if not distanceToRepresentative or math.floor(distanceToRepresentative) ~= math.floor(data.currentDistance) then
@@ -25,7 +25,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
     local menuOptions, menuOptionsCount = {}, 0
     local allVehicleData = ESX.GetVehicleData()
     local allCategories = records:getCategories()
-    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.Categories)
+    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.categories)
 
     for i = 1, #allCategories do
         local category = allCategories[i]
@@ -37,7 +37,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
             for j = 1, #categoryVehicles do
                 local vehicle = categoryVehicles[j]
 
-                if data.representativeCategory == "RepresentativePeds" then
+                if data.representativeCategory == "representativePeds" then
                     optionsCount += 1
                     options[optionsCount] = {
                         label = vehicle.name,
@@ -46,7 +46,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                         category = category.name,
                         description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price))
                     }
-                elseif data.representativeCategory == "RepresentativeVehicles" then
+                elseif data.representativeCategory == "representativeVehicles" then
                     local _data = json.decode(json.encode(data))
 
                     _data.vehicleModel = vehicle.model
@@ -66,13 +66,13 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
                 end
             end
 
-            if data.representativeCategory == "RepresentativePeds" then
+            if data.representativeCategory == "representativePeds" then
                 menuOptionsCount += 1
                 menuOptions[menuOptionsCount] = {
                     label = category.name,
                     values = options
                 }
-            elseif data.representativeCategory == "RepresentativeVehicles" then
+            elseif data.representativeCategory == "representativeVehicles" then
                 menuOptionsCount += 1
                 menuOptions[menuOptionsCount] = {
                     title = category.label,
@@ -107,7 +107,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         return cb()
     end
 
-    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.Categories)
+    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.categories)
     local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex]
 
     if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then
@@ -127,7 +127,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         return cb()
     end
 
-    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, locale("purchase_transaction_info", vehicleData.name, vehicleShopData.Label, xVehicle.plate, ESX.Math.GroupDigits(vehicleData.price)))
+    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, locale("purchase_transaction_info", vehicleData.name, vehicleShopData.label, xVehicle.plate, ESX.Math.GroupDigits(vehicleData.price)))
 
     return cb(xVehicle.netId)
 end)
@@ -144,7 +144,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, 
     local vehicleData = ESX.GetVehicleData(xVehicle.model)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
     local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
-    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
+    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.resellPercentage or 100) / 100)
     local contextOptions = {
         {
             title = locale("selling_vehicle", ("%s %s"):format(vehicleData?.make, vehicleData?.name)),

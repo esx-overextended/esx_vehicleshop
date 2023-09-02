@@ -108,7 +108,7 @@ function OpenShopMenu(data)
 
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
 
-    if data.representativeCategory == "RepresentativePeds" then
+    if data.representativeCategory == "representativePeds" then
         local collisionCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
         local pedCoordsBeforeOpeningShopMenu = cache.coords
         local insideShop, isSpawning, spawnedVehicle = true, false, nil
@@ -170,7 +170,7 @@ function OpenShopMenu(data)
             lib.setMenuOptions("esx_vehicleshop:shopMenu", menuOptions[selectedIndex], selectedIndex)
 
             if not spawnedVehicle then
-                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("cannot_load_vehicle", selectedVehicleLabel) }, "error")
+                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.label), locale("cannot_load_vehicle", selectedVehicleLabel) }, "error")
                 return lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex)
             end
 
@@ -232,7 +232,7 @@ function OpenShopMenu(data)
                 local optionData = options[_selectedIndex]
 
                 if not optionData?.canUseThisAccount then
-                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("not_enough_money", optionData?.accountLabel, selectedVehicleLabel) }, "error")
+                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.label), locale("not_enough_money", optionData?.accountLabel, selectedVehicleLabel) }, "error")
                 end
 
                 local currentMenu = lib.getOpenMenu()
@@ -259,7 +259,7 @@ function OpenShopMenu(data)
                 })
 
                 if not vehicleNetId then
-                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("purchase_not_complete", selectedVehicleLabel) }, "error")
+                    return ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.label), locale("purchase_not_complete", selectedVehicleLabel) }, "error")
                 end
 
                 for _ = 1, 2 do
@@ -292,7 +292,7 @@ function OpenShopMenu(data)
                     end
                 end
 
-                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.Label), locale("purchase_confirmed", selectedVehicleLabel, ESX.Math.GroupDigits(selectedVehicle.price)) }, "success", 5000)
+                ESX.ShowNotification({ locale("vehicle_shop", vehicleShopData?.label), locale("purchase_confirmed", selectedVehicleLabel, ESX.Math.GroupDigits(selectedVehicle.price)) }, "success", 5000)
             end)
 
             lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")
@@ -310,7 +310,7 @@ function OpenShopMenu(data)
 
         lib.registerMenu({
             id = "esx_vehicleshop:shopMenu",
-            title = vehicleShopData?.Label,
+            title = vehicleShopData?.label,
             options = menuOptions,
             onSideScroll = onMenuChange,
             onSelected = onMenuChange,
@@ -318,7 +318,7 @@ function OpenShopMenu(data)
         }, onMenuSelect)
 
         lib.showMenu("esx_vehicleshop:shopMenu")
-    elseif data.representativeCategory == "RepresentativeVehicles" then
+    elseif data.representativeCategory == "representativeVehicles" then
         for i = 1, #menuOptions do
             local categoryOption = menuOptions[i]
 
@@ -341,7 +341,7 @@ function OpenShopMenu(data)
 
         lib.registerContext({
             id = "esx_vehicleshop:shopMenu",
-            title = vehicleShopData?.Label,
+            title = vehicleShopData?.label,
             canClose = true,
             options = menuOptions
         })

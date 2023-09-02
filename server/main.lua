@@ -33,11 +33,11 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     local sellPointData = Config.SellPoints[sellPointIndex]
     local vehicleCategory = records:getVehicleCategory(xVehicle.model)
 
-    if sellPointData.Categories then
+    if sellPointData.categories then
         local isCategoryValid = false
 
-        for i = 1, #sellPointData.Categories do
-            if sellPointData.Categories[i] == vehicleCategory?.name then
+        for i = 1, #sellPointData.categories do
+            if sellPointData.categories[i] == vehicleCategory?.name then
                 isCategoryValid = true
                 break
             end
@@ -46,8 +46,8 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
         if not isCategoryValid then
             local authorizedCategories, authorizedCategoriesCount = {}, 0
 
-            for i = 1, #sellPointData.Categories do
-                local categoryLabel = records:getCategoryLabel(sellPointData.Categories[i])
+            for i = 1, #sellPointData.categories do
+                local categoryLabel = records:getCategoryLabel(sellPointData.categories[i])
 
                 if categoryLabel then
                     authorizedCategoriesCount += 1
@@ -62,7 +62,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     end
 
     local playerCoords = GetEntityCoords(playerPed)
-    local sellPointCoords = sellPointData.Marker?.Coords
+    local sellPointCoords = sellPointData.marker?.coords
     local distanceToSellPoint = sellPointCoords and #(vector3(sellPointCoords.x, sellPointCoords.y, sellPointCoords.z) - playerCoords)
 
     if not distanceToSellPoint or math.floor(distanceToSellPoint) ~= math.floor(distance) then

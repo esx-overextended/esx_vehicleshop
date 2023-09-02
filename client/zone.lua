@@ -4,18 +4,18 @@ local function createBlip(zoneKey)
     local isVehicleShop = type(zoneKey) == "string" and true or false
     local data = isVehicleShop and Config.VehicleShops[zoneKey] or Config.SellPoints[zoneKey]
 
-    if not data or not data.Blip or not data.Blip.Active then return end
+    if not data or not data.blip or not data.blip.active then return end
 
-    local blipData = data.Blip
-    local blipCoords = blipData.Coords or data.Marker?.Coords
+    local blipData = data.blip
+    local blipCoords = blipData.coords or data.marker?.coords
     local blipName = ("%s_%s"):format(isVehicleShop and "vehicleshop" or "sellpoint", zoneKey)
     local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
 
-    SetBlipSprite(blip, blipData.Type)
-    SetBlipScale(blip, blipData.Size)
-    SetBlipColour(blip, blipData.Color)
+    SetBlipSprite(blip, blipData.type)
+    SetBlipScale(blip, blipData.size)
+    SetBlipColour(blip, blipData.color)
     SetBlipAsShortRange(blip, true)
-    AddTextEntry(blipName, data.Label or not isVehicleShop and locale("vehicle_sell")) ---@diagnostic disable-line: param-type-mismatch
+    AddTextEntry(blipName, data.label or not isVehicleShop and locale("vehicle_sell")) ---@diagnostic disable-line: param-type-mismatch
     BeginTextCommandSetBlipName(blipName)
     EndTextCommandSetBlipName(blip)
 
@@ -56,31 +56,31 @@ local function onVehicleShopRepresentativeInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local representative = vehicleShopData[data?.representativeCategory][data.representativePedIndex or data.representativeVehicleIndex]
 
-    if not representative.Marker.DrawDistance or data.currentDistance <= representative.Marker.DrawDistance then
+    if not representative.marker.drawDistance or data.currentDistance <= representative.marker.drawDistance then
         DrawMarker(
-            representative.Marker.Type or 1, --[[type]]
-            representative.Marker.Coords.x or representative.Coords.x, --[[posX]]
-            representative.Marker.Coords.y or representative.Coords.y, --[[posY]]
-            representative.Marker.Coords.z or representative.Coords.z, --[[posZ]]
+            representative.marker.type or 1, --[[type]]
+            representative.marker.coords.x or representative.coords.x, --[[posX]]
+            representative.marker.coords.y or representative.coords.y, --[[posY]]
+            representative.marker.coords.z or representative.coords.z, --[[posZ]]
             0.0, --[[dirX]]
             0.0, --[[dirY]]
             0.0, --[[dirZ]]
             0.0, --[[rotX]]
             0.0, --[[rotY]]
             0.0, --[[rotZ]]
-            representative.Marker.Size.x or 1.5, --[[scaleX]]
-            representative.Marker.Size.y or 1.5, --[[scaleY]]
-            representative.Marker.Size.z or 1.5, --[[scaleZ]]
-            representative.Marker.Color.r or 255, --[[red]]
-            representative.Marker.Color.g or 255, --[[green]]
-            representative.Marker.Color.b or 255, --[[blue]]
-            representative.Marker.Color.a or 50, --[[alpha]]
-            representative.Marker.UpAndDown or false, --[[bobUpAndDown]]
-            representative.Marker.FaceCamera or true, --[[faceCamera]]
+            representative.marker.size.x or 1.5, --[[scaleX]]
+            representative.marker.size.y or 1.5, --[[scaleY]]
+            representative.marker.size.z or 1.5, --[[scaleZ]]
+            representative.marker.color.r or 255, --[[red]]
+            representative.marker.color.g or 255, --[[green]]
+            representative.marker.color.b or 255, --[[blue]]
+            representative.marker.color.a or 50, --[[alpha]]
+            representative.marker.UpAndDown or false, --[[bobUpAndDown]]
+            representative.marker.FaceCamera or true, --[[faceCamera]]
             2, --[[p19]]
-            representative.Marker.Rotate or false, --[[rotate]]
-            representative.Marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
-            representative.Marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
+            representative.marker.Rotate or false, --[[rotate]]
+            representative.marker.TextureDict or nil, --[[textureDict]] ---@diagnostic disable-line: param-type-mismatch
+            representative.marker.TextureName or nil, --[[textureName]] ---@diagnostic disable-line: param-type-mismatch
             false --[[drawOnEnts]]
         )
     end
@@ -90,19 +90,19 @@ local function setupVehicleShop(vehicleShopKey)
     local vehicleShopData = Config.VehicleShops[vehicleShopKey]
     local representativePeds, representativeVehicles
 
-    if type(vehicleShopData.RepresentativePeds) == "table" then
+    if type(vehicleShopData.representativePeds) == "table" then
         representativePeds = {}
 
-        for i = 1, #vehicleShopData.RepresentativePeds do
-            local representativePedData = vehicleShopData.RepresentativePeds[i]
+        for i = 1, #vehicleShopData.representativePeds do
+            local representativePedData = vehicleShopData.representativePeds[i]
             local point = lib.points.new({
-                coords = representativePedData.Coords,
-                distance = representativePedData.Distance,
+                coords = representativePedData.coords,
+                distance = representativePedData.distance,
                 onEnter = onVehicleShopRepresentativeEnter,
                 onExit = onVehicleShopRepresentativeExit,
-                nearby = representativePedData.Marker and onVehicleShopRepresentativeInside,
+                nearby = representativePedData.marker and onVehicleShopRepresentativeInside,
                 vehicleShopKey = vehicleShopKey,
-                representativeCategory = "RepresentativePeds",
+                representativeCategory = "representativePeds",
                 representativePedIndex = i
             })
 
@@ -110,19 +110,19 @@ local function setupVehicleShop(vehicleShopKey)
         end
     end
 
-    if type(vehicleShopData.RepresentativeVehicles) == "table" then
+    if type(vehicleShopData.representativeVehicles) == "table" then
         representativeVehicles = {}
 
-        for i = 1, #vehicleShopData.RepresentativeVehicles do
-            local representativeVehicleData = vehicleShopData.RepresentativeVehicles[i]
+        for i = 1, #vehicleShopData.representativeVehicles do
+            local representativeVehicleData = vehicleShopData.representativeVehicles[i]
             local point = lib.points.new({
-                coords = representativeVehicleData.Coords,
-                distance = representativeVehicleData.Distance,
+                coords = representativeVehicleData.coords,
+                distance = representativeVehicleData.distance,
                 onEnter = onVehicleShopRepresentativeEnter,
                 onExit = onVehicleShopRepresentativeExit,
-                nearby = representativeVehicleData.Marker and onVehicleShopRepresentativeInside,
+                nearby = representativeVehicleData.marker and onVehicleShopRepresentativeInside,
                 vehicleShopKey = vehicleShopKey,
-                representativeCategory = "RepresentativeVehicles",
+                representativeCategory = "representativeVehicles",
                 representativeVehicleIndex = i
             })
 
@@ -155,17 +155,17 @@ end
 
 local function onSellPointEnter(data)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local markerData = sellPointData?.Marker
+    local markerData = sellPointData?.marker
     local radius
 
-    for _, value in pairs(markerData.Size) do
+    for _, value in pairs(markerData.size) do
         if not radius or value >= radius then
             radius = value
         end
     end
 
     local markerSphere = lib.zones.sphere({
-        coords = markerData.Coords,
+        coords = markerData.coords,
         radius = radius,
         onEnter = onSellPointMarkerEnter,
         onExit = onSellPointMarkerExit,
@@ -186,27 +186,27 @@ end
 
 local function onSellPointInside(data)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local markerData = sellPointData?.Marker
+    local markerData = sellPointData?.marker
 
-    if not markerData.DrawDistance or data.currentDistance <= markerData.DrawDistance then
+    if not markerData.drawDistance or data.currentDistance <= markerData.drawDistance then
         DrawMarker(
-            markerData.Type or 1, --[[type]]
-            markerData.Coords.x, --[[posX]]
-            markerData.Coords.y, --[[posY]]
-            markerData.Coords.z, --[[posZ]]
+            markerData.type or 1, --[[type]]
+            markerData.coords.x, --[[posX]]
+            markerData.coords.y, --[[posY]]
+            markerData.coords.z, --[[posZ]]
             0.0, --[[dirX]]
             0.0, --[[dirY]]
             0.0, --[[dirZ]]
             0.0, --[[rotX]]
             0.0, --[[rotY]]
             0.0, --[[rotZ]]
-            markerData.Size.x or 1.5, --[[scaleX]]
-            markerData.Size.y or 1.5, --[[scaleY]]
-            markerData.Size.z or 1.5, --[[scaleZ]]
-            markerData.Color.r or 255, --[[red]]
-            markerData.Color.g or 255, --[[green]]
-            markerData.Color.b or 255, --[[blue]]
-            markerData.Color.a or 50, --[[alpha]]
+            markerData.size.x or 1.5, --[[scaleX]]
+            markerData.size.y or 1.5, --[[scaleY]]
+            markerData.size.z or 1.5, --[[scaleZ]]
+            markerData.color.r or 255, --[[red]]
+            markerData.color.g or 255, --[[green]]
+            markerData.color.b or 255, --[[blue]]
+            markerData.color.a or 50, --[[alpha]]
             markerData.UpAndDown or false, --[[bobUpAndDown]]
             markerData.FaceCamera or true, --[[faceCamera]]
             2, --[[p19]]
@@ -220,13 +220,13 @@ end
 
 local function setupSellPoint(sellPointIndex)
     local sellPointData = Config.SellPoints[sellPointIndex]
-    local markerData = sellPointData?.Marker
+    local markerData = sellPointData?.marker
 
     if type(markerData) ~= "table" then return end
 
     local point = lib.points.new({
-        coords = markerData.Coords,
-        distance = markerData.DrawDistance,
+        coords = markerData.coords,
+        distance = markerData.drawDistance,
         onEnter = onSellPointEnter,
         onExit = onSellPointExit,
         nearby = onSellPointInside,
