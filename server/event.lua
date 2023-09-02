@@ -31,15 +31,15 @@ end)
 
 local playersNearPoints = {}
 
-local enteredRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)
+local enteredRepresentativePoint = function(playerId, shopKey, representativeCategory, representativeIndex)
     local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
 
-    if not vehicleShopData then return utility.cheatDetected(_source) end
+    if not vehicleShopData then return utility.cheatDetected(playerId) end
 
-    if not vehicleShopData then return ESX.Trace(("Player(%s) tried to enter Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
-    if not vehicleShopData[representativeCategory] then return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
+    if not vehicleShopData then return ESX.Trace(("Player(%s) tried to enter Shop[%s] which doesn't exist!"):format(playerId, shopKey), "error", true) end
+    if not vehicleShopData[representativeCategory] then return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s] which doesn't exist!"):format(playerId, shopKey, representativeCategory), "error", true) end
     if not vehicleShopData[representativeCategory][representativeIndex] then
-        return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+        return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s][%s] which doesn't exist!"):format(playerId, shopKey, representativeCategory, representativeIndex), "error", true)
     end
 
     -- building table structure
@@ -60,25 +60,25 @@ local enteredRepresentativePoint = function(_source, shopKey, representativeCate
 
     local _playersNearPoints = playersNearPoints[shopKey][representativeCategory][representativeIndex]
 
-    if _playersNearPoints[_source] then
-        return --[[ESX.Trace(("Player(%s) has already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)]]
+    if _playersNearPoints[playerId] then
+        return --[[ESX.Trace(("Player(%s) has already entered Shop[%s][%s][%s]"):format(playerId, shopKey, representativeCategory, representativeIndex), "error", true)]]
     end
 
-    local playerPed = GetPlayerPed(_source)
+    local playerPed = GetPlayerPed(playerId)
     local playerCoords = GetEntityCoords(playerPed)
     local representative = vehicleShopData[representativeCategory][representativeIndex]
     local representativeCoords = representative.coords
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
     if playerDistToRepresentative > representative.distance + 5.0 then -- not superly strict comparison
-        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.distance, playerDistToRepresentative), "warning", true)]]
+        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be below %s while it is %s"):format(playerId, shopKey, representativeCategory, representativeIndex, representative.distance, playerDistToRepresentative), "warning", true)]]
     end
 
     local shouldHandleRepresentatives = _playersNearPoints() == 0
 
-    _playersNearPoints[tonumber(_source)] = true
+    _playersNearPoints[tonumber(playerId)] = true
 
-    ESX.Trace(("Player(%s) entered Shop[%s][%s][%s]."):format(_source, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
+    ESX.Trace(("Player(%s) entered Shop[%s][%s][%s]."):format(playerId, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
 
     if not shouldHandleRepresentatives then return end
 
@@ -103,36 +103,36 @@ local enteredRepresentativePoint = function(_source, shopKey, representativeCate
     Entity(entity).state:set("esx_vehicleshop:handleRepresentative", { coords = representative.coords, vehicleShopKey = shopKey, representativeCategory = representativeCategory, representativeIndex = representativeIndex }, true)
 end
 
-local exitedRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)
-    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to exit Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
-    if not playersNearPoints[shopKey][representativeCategory] then return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
+local exitedRepresentativePoint = function(playerId, shopKey, representativeCategory, representativeIndex)
+    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to exit Shop[%s] which doesn't exist!"):format(playerId, shopKey), "error", true) end
+    if not playersNearPoints[shopKey][representativeCategory] then return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s] which doesn't exist!"):format(playerId, shopKey, representativeCategory), "error", true) end
     if not playersNearPoints[shopKey][representativeCategory][representativeIndex] then
-        return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)
+        return ESX.Trace(("Player(%s) tried to exit Shop[%s][%s][%s] which doesn't exist!"):format(playerId, shopKey, representativeCategory, representativeIndex), "error", true)
     end
 
     local _playersNearPoints = playersNearPoints[shopKey]?[representativeCategory]?[representativeIndex]
 
-    if not _playersNearPoints[_source] then
-        return --[[ESX.Trace(("Player(%s) has not already entered Shop[%s][%s][%s]"):format(_source, shopKey, representativeCategory, representativeIndex), "error", true)]]
+    if not _playersNearPoints[playerId] then
+        return --[[ESX.Trace(("Player(%s) has not already entered Shop[%s][%s][%s]"):format(playerId, shopKey, representativeCategory, representativeIndex), "error", true)]]
     end
 
-    local playerPed = GetPlayerPed(_source)
+    local playerPed = GetPlayerPed(playerId)
     local playerCoords = GetEntityCoords(playerPed)
     local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
 
-    if not vehicleShopData then return utility.cheatDetected(_source) end
+    if not vehicleShopData then return utility.cheatDetected(playerId) end
 
     local representative = vehicleShopData[representativeCategory][representativeIndex]
     local representativeCoords = representative.coords
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
 
     if playerDistToRepresentative < representative.distance - 5.0 then -- not superly strict comparison
-        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(_source, shopKey, representativeCategory, representativeIndex, representative.distance, playerDistToRepresentative), "warning", true)]]
+        return --[[ESX.Trace(("Player(%s) distance to Shop[%s][%s][%s] should be above %s while it is %s"):format(playerId, shopKey, representativeCategory, representativeIndex, representative.distance, playerDistToRepresentative), "warning", true)]]
     end
 
-    _playersNearPoints[_source] = nil
+    _playersNearPoints[playerId] = nil
 
-    ESX.Trace(("Player(%s) exited Shop[%s][%s][%s]."):format(_source, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
+    ESX.Trace(("Player(%s) exited Shop[%s][%s][%s]."):format(playerId, shopKey, representativeCategory, representativeIndex), "info", Config.Debug)
 
     local shouldHandleRepresentatives = _playersNearPoints() == 0
 
@@ -175,20 +175,20 @@ RegisterServerEvent("esx_vehicleshop:exitedRepresentativePoint", function(...)
     ensureQueue(exitedRepresentativePoint, _source, ...)
 end)
 
-local changeVehicleRepresentative = function(_source, shopKey, representativeIndex, vehicleModel)
-    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
-    if not playersNearPoints[shopKey]["representativeVehicles"] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, "representativeVehicles"), "error", true) end
+local changeVehicleRepresentative = function(playerId, shopKey, representativeIndex, vehicleModel)
+    if not playersNearPoints[shopKey] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s] which doesn't exist!"):format(playerId, shopKey), "error", true) end
+    if not playersNearPoints[shopKey]["representativeVehicles"] then return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s] which doesn't exist!"):format(playerId, shopKey, "representativeVehicles"), "error", true) end
     if not playersNearPoints[shopKey]["representativeVehicles"][representativeIndex] then
-        return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s][%s] which doesn't exist!"):format(_source, shopKey, "representativeVehicles", representativeIndex), "error", true)
+        return ESX.Trace(("Player(%s) tried to change representative of Shop[%s][%s][%s] which doesn't exist!"):format(playerId, shopKey, "representativeVehicles", representativeIndex), "error", true)
     end
 
     local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
 
-    if not vehicleShopData or not vehicleShopData:hasVehicle(vehicleModel) then return utility.cheatDetected(_source) end
+    if not vehicleShopData or not vehicleShopData:hasVehicle(vehicleModel) then return utility.cheatDetected(playerId) end
 
     local representative = vehicleShopData:getRepresentative("representativeVehicles", representativeIndex)
 
-    if not representative then return utility.cheatDetected(_source) end
+    if not representative then return utility.cheatDetected(playerId) end
 
     local entity = playersNearPoints[shopKey]["representativeVehicles"]["Entities"][representativeIndex]
     local _type = type(entity)
@@ -208,7 +208,7 @@ local changeVehicleRepresentative = function(_source, shopKey, representativeInd
         FreezeEntityPosition(entity, true)
         Entity(entity).state:set("esx_vehicleshop:handleRepresentative", { coords = representative.coords, vehicleShopKey = shopKey, representativeCategory = "representativeVehicles", representativeIndex = representativeIndex }, true)
 
-        ESX.Trace(("Player(%s) changed representative of Shop[%s][%s][%s]."):format(_source, shopKey, "representativeVehicles", representativeIndex), "info", Config.Debug)
+        ESX.Trace(("Player(%s) changed representative of Shop[%s][%s][%s]."):format(playerId, shopKey, "representativeVehicles", representativeIndex), "info", Config.Debug)
 
         playersNearPoints[shopKey]["representativeVehicles"]["Entities"][representativeIndex] = entity
     elseif _type ~= "string" then

@@ -85,8 +85,8 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
         title = selectedVehicleLabel,
         options = options,
         onClose = function() lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex) end
-    }, function(_selectedIndex)
-        if _selectedIndex == 1 then
+    }, function(_subMenuSelectedIndex)
+        if _subMenuSelectedIndex == 1 then
             local vehicleCustomPrimaryColor = GetIsVehiclePrimaryColourCustom(self.spawnedVehicle) and utility.rgbToHex(GetVehicleCustomPrimaryColour(self.spawnedVehicle)) or nil
             local vehicleCustomSecondaryColor = GetIsVehicleSecondaryColourCustom(self.spawnedVehicle) and utility.rgbToHex(GetVehicleCustomSecondaryColour(self.spawnedVehicle)) or nil
 
@@ -101,7 +101,7 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
             return lib.showMenu("esx_vehicleshop:shopMenuBuyConfirmation")
         end
 
-        local optionData = options[_selectedIndex]
+        local optionData = options[_subMenuSelectedIndex]
 
         if not optionData?.canUseThisAccount then
             return ESX.ShowNotification({ locale("vehicle_shop", self.vehicleShopData?.label), locale("not_enough_money", optionData?.accountLabel, selectedVehicleLabel) }, "error")
@@ -118,7 +118,7 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
             cancel = true
         })
 
-        lib.showMenu(currentMenu, _selectedIndex)
+        lib.showMenu(currentMenu, _subMenuSelectedIndex)
 
         if alertDialog ~= "confirm" then return end
 
@@ -179,7 +179,7 @@ function fn:onMenuClose()
     self.insideShop = false
     self = nil  -- removing instance of fn
 
-    return self -- hacky way to avoid lint errors (value assigned to variable 'self' is unused)
+    return self -- hacky way to prevent lint error of value assigned to variable 'self' is unused
 end
 
 function OpenShopMenu(data)
