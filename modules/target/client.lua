@@ -1,8 +1,9 @@
-Target = {}
+---@class target
+local target = {}
 
 local shared = lib.require("shared.shared") --[[@as shared]]
 
-function Target.addNetId(netId, data)
+function target.addNetId(netId, data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local optionId = ("%s:shop[%s][%s][%s]"):format(cache.resource, data.vehicleShopKey, data.representativeCategory, data.representativeIndex)
 
@@ -30,7 +31,7 @@ function Target.addNetId(netId, data)
     return optionId
 end
 
-function Target.addEntity(entity, data)
+function target.addEntity(entity, data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local optionId = ("%s:shop[%s][%s][%s]"):format(cache.resource, data.vehicleShopKey, data.representativeCategory, data.representativeIndex)
 
@@ -57,3 +58,5 @@ function Target.addEntity(entity, data)
 
     return optionId
 end
+
+return target

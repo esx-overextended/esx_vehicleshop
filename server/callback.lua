@@ -1,6 +1,7 @@
 local shared = lib.require("shared.shared") --[[@as shared]]
-local records = lib.require("server.class.records") --[[@as records]]
-local vehicleShop = lib.require("server.class.vehicleShop") --[[@as vehicleShop]]
+local records = lib.require("modules.records.server") --[[@as records]]
+local utility = lib.require("modules.utility.server") --[[@as utility_server]]
+local vehicleShop = lib.require("modules.vehicleShop.server") --[[@as vehicleShop]]
 
 ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
     if not data?.vehicleShopKey or (not data?.representativePedIndex and not data?.representativeVehicleIndex) or not data?.currentDistance then return cb() end
@@ -8,13 +9,13 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
     local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
 
     if not vehicleShopData then
-        return cb(CheatDetected(source))
+        return cb(utility.cheatDetected(source))
     end
 
     local representative = vehicleShopData:getRepresentative(data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex)
 
     if not representative then
-        return cb(CheatDetected(source))
+        return cb(utility.cheatDetected(source))
     end
 
     if not representative:isPlayerNearby(source) then
@@ -32,14 +33,14 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
 
     local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
 
-    if not vehicleShopData then return cb(CheatDetected(source)) end
+    if not vehicleShopData then return cb(utility.cheatDetected(source)) end
 
-    if not vehicleShopData:isPlayerNearShopPreview(source) then return cb(CheatDetected(source)) end
+    if not vehicleShopData:isPlayerNearShopPreview(source) then return cb(utility.cheatDetected(source)) end
 
     local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.categories)
-    local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex]
+    local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex] --[[@as cVehicle?]]
 
-    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then return cb(CheatDetected(source)) end
+    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then return cb(utility.cheatDetected(source)) end
 
     local spawnCoords = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
     local xVehicle = ESX.CreateVehicle({

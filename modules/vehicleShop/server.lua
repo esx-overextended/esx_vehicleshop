@@ -10,8 +10,8 @@ local vehicleShop = {}
 vehicleShop.__index = vehicleShop
 
 local shared = lib.require("shared.shared") --[[@as shared]]
-local records = lib.require("server.class.records") --[[@as records]]
-local representative = lib.require("server.class.representative") --[[@as representative]]
+local records = lib.require("modules.records.server") --[[@as records]]
+local representative = lib.require("modules.representative.server") --[[@as representative]]
 
 ---@return string[]?
 function vehicleShop:getCategories()
@@ -77,8 +77,9 @@ end
 function vehicleShop:isPlayerNearShopPreview(playerId)
     local playerPed = GetPlayerPed(playerId)
     local playerCoords = GetEntityCoords(playerPed)
+    local vehiclePreviewCoords = self.vehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
 
-    return #(playerCoords - vector3(self.vehiclePreviewCoords.x, self.vehiclePreviewCoords.y, self.vehiclePreviewCoords.z)) <= shared.DISTANCE_TO_VEHICLE_PREVIEW
+    return #(playerCoords - vector3(vehiclePreviewCoords.x, vehiclePreviewCoords.y, vehiclePreviewCoords.z)) <= shared.DISTANCE_TO_VEHICLE_PREVIEW
 end
 
 ---@param representativeCategory "representativePeds" | "representativeVehicles"
@@ -152,7 +153,7 @@ function vehicleShop:generateShopMenu(representativeCategory, representativeInde
 end
 
 ---@type zone
-local zone = lib.require("server.class.zone")
+local zone = lib.require("modules.zone.server")
 
 return setmetatable({}, {
     __index = vehicleShop,
@@ -167,8 +168,8 @@ return setmetatable({}, {
         object.categories = vehicleShopData.categories
         object.representativePeds = vehicleShopData.representativePeds
         object.representativeVehicles = vehicleShopData.representativeVehicles
-        object.vehiclePreviewCoords = vehicleShopData.vehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
-        object.vehicleSpawnCoordsAfterPurchase = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
+        object.vehiclePreviewCoords = vehicleShopData.vehiclePreviewCoords
+        object.vehicleSpawnCoordsAfterPurchase = vehicleShopData.vehicleSpawnCoordsAfterPurchase
 
         setmetatable(object, vehicleShop)
 

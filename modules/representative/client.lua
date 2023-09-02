@@ -1,3 +1,5 @@
+local target = lib.require("modules.target.client") --[[@as target]]
+
 AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(bagName, _, value)
     if type(value) ~= "table" then return end
 
@@ -23,6 +25,6 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
         SetVehicleCanBeUsedByFleeingPeds(entity, false)
     end
 
-    -- Target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
-    Target.addEntity(entity, value) -- Same code as above but works...
+    -- target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
+    target.addEntity(entity, value) -- Same code as above but works...
 end)
