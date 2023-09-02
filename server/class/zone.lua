@@ -32,21 +32,17 @@ function zone:getBlipCoords()
     return self.blip?.coords
 end
 
----creates an instance of zone
----@param zoneKey string
----@param zoneLabel string
----@param blipData table?
----@return zone
-function zone:__call(zoneKey, zoneLabel, blipData)
-    local object = {
-        key = zoneKey,
-        label = zoneLabel,
-        blip = blipData
-    }
+return setmetatable({}, {
+    __index = zone,
+    __call = function(_, zoneKey, zoneLabel, blipData)
+        local object = {
+            key = zoneKey,
+            label = zoneLabel,
+            blip = blipData
+        }
 
-    setmetatable(object, zone)
+        setmetatable(object, zone)
 
-    return object
-end
-
-return zone
+        return object
+    end
+})

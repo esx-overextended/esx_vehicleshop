@@ -1,7 +1,7 @@
 ---@class cVehicleShop : cZone
 ---@field categories string[]?
----@field pedRepresentatives representative[]
----@field vehicleRepresentatives representative[]
+---@field representativePeds representative[]
+---@field representativeVehicles representative[]
 
 ---@class vehicleShop : cVehicleShop
 local vehicleShop = {}
@@ -65,22 +65,22 @@ end
 ---@type zone
 local zone = lib.require("server.class.zone")
 
----@return vehicleShop?
-function vehicleShop:__call(shopKey)
-    local vehicleShopData = Config.VehicleShops[shopKey]
+return setmetatable({}, {
+    __index = vehicleShop,
+    __call = function(_, shopKey)
+        local vehicleShopData = Config.VehicleShops[shopKey]
 
-    if not vehicleShopData then return end
+        if not vehicleShopData then return end
 
-    local object = zone(shopKey, vehicleShopData.label, vehicleShopData.blip) --[[@as zone]]
+        local object = zone(shopKey, vehicleShopData.label, vehicleShopData.blip) --[[@as zone]]
 
-    ---@cast object -zone, +vehicleShop
-    object.categories = vehicleShopData.categories
-    object.pedRepresentatives = vehicleShopData.pedRepresentatives
-    object.vehicleRepresentatives = vehicleShopData.vehicleRepresentatives
+        ---@cast object -zone, +vehicleShop
+        object.categories = vehicleShopData.categories
+        object.representativePeds = vehicleShopData.representativePeds
+        object.representativeVehicles = vehicleShopData.representativeVehicles
 
-    setmetatable(object, vehicleShop)
+        setmetatable(object, vehicleShop)
 
-    return object
-end
-
-return vehicleShop
+        return object
+    end
+})
