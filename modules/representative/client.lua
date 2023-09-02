@@ -1,3 +1,5 @@
+local target = lib.require("modules.target.client") --[[@as target]]
+
 AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(bagName, _, value)
     if type(value) ~= "table" then return end
 
@@ -11,7 +13,7 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
     SetEntityHeading(entity, value.coords?.w)
     SetEntityProofs(entity, true, true, true, false, true, true, true, true)
 
-    if value.representativeCategory == "RepresentativePeds" then
+    if value.representativeCategory == "representativePeds" then
         SetPedDiesWhenInjured(entity, false)
         SetPedFleeAttributes(entity, 2, true)
         SetPedCanPlayAmbientAnims(entity, false)
@@ -19,10 +21,10 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
         SetPedRelationshipGroupHash(entity, `PLAYER`)
         SetBlockingOfNonTemporaryEvents(entity, true)
         SetPedCanRagdollFromPlayerImpact(entity, false)
-    elseif value.representativeCategory == "RepresentativeVehicles" then
+    elseif value.representativeCategory == "representativeVehicles" then
         SetVehicleCanBeUsedByFleeingPeds(entity, false)
     end
 
-    -- Target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
-    Target.addEntity(entity, value) -- Same code as above but works...
+    -- target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
+    target.addEntity(entity, value) -- Same code as above but works...
 end)

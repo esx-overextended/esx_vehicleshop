@@ -1,81 +1,29 @@
+local shared = lib.require("shared.shared") --[[@as shared]]
+local records = lib.require("modules.records.server") --[[@as records]]
+local utility = lib.require("modules.utility.server") --[[@as utility_server]]
+local vehicleShop = lib.require("modules.vehicleShop.server") --[[@as vehicleShop]]
+
 ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
     if not data?.vehicleShopKey or (not data?.representativePedIndex and not data?.representativeVehicleIndex) or not data?.currentDistance then return cb() end
 
-    local playerPed = GetPlayerPed(source)
-    local playerCoords = GetEntityCoords(playerPed)
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local representativeCoords = vehicleShopData[data.representativeCategory]?[data.representativePedIndex or data.representativeVehicleIndex]?.Coords
-    local distanceToRepresentative = representativeCoords and #(vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z) - playerCoords)
+    local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
 
-    if not distanceToRepresentative or math.floor(distanceToRepresentative) ~= math.floor(data.currentDistance) then
-        ESX.Trace(("Player(%s) distance to %s:%s was supposed to be (^2%s^7) but it is (^1%s^7)!"):format(source, data.vehicleShopKey, data.representativePedIndex or data.representativeVehicleIndex, data.currentDistance, distanceToRepresentative),
-            "warning", Config.Debug)
-        return cb()
+    if not vehicleShopData then
+        return cb(utility.cheatDetected(source))
     end
 
-    local menuOptions, menuOptionsCount = {}, 0
-    local allVehicleData = ESX.GetVehicleData()
-    local _, allCategories = GetVehiclesAndCategories()
-    local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
+    local representative = vehicleShopData:getRepresentative(data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex)
 
-    for i = 1, #allCategories do
-        local category = allCategories[i]
-
-        if vehiclesByCategory[category.name] then
-            local categoryVehicles = vehiclesByCategory[category.name]
-            local options, optionsCount = {}, 0
-
-            for j = 1, #categoryVehicles do
-                local vehicle = categoryVehicles[j]
-
-                if data.representativeCategory == "RepresentativePeds" then
-                    optionsCount += 1
-                    options[optionsCount] = {
-                        label = vehicle.name,
-                        value = vehicle.model,
-                        price = vehicle.price,
-                        category = category.name,
-                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price))
-                    }
-                elseif data.representativeCategory == "RepresentativeVehicles" then
-                    local _data = json.decode(json.encode(data))
-
-                    _data.vehicleModel = vehicle.model
-
-                    optionsCount += 1
-                    options[optionsCount] = {
-                        title = vehicle.name,
-                        model = vehicle.model,
-                        price = vehicle.price,
-                        category = category.name,
-                        categoryLabel = category.label,
-                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price)),
-                        image = allVehicleData[vehicle.model]?.image,
-                        serverEvent = "esx_vehicleshop:changeVehicleRepresentative",
-                        args = _data
-                    }
-                end
-            end
-
-            if data.representativeCategory == "RepresentativePeds" then
-                menuOptionsCount += 1
-                menuOptions[menuOptionsCount] = {
-                    label = category.name,
-                    values = options
-                }
-            elseif data.representativeCategory == "RepresentativeVehicles" then
-                menuOptionsCount += 1
-                menuOptions[menuOptionsCount] = {
-                    title = category.label,
-                    args = { subMenuOptions = options },
-                    menu = ("esx_vehicleshop:shopMenu_%s"):format(category.name),
-                    arrow = true
-                }
-            end
-        end
+    if not representative then
+        return cb(utility.cheatDetected(source))
     end
 
-    return cb(menuOptions)
+    if not representative:isPlayerNearby(source) then
+        return cb(ESX.Trace(("Player(%s) distance to %s:%s was supposed to be below (%s) but it is (^1%s^7)!"):format(source, data.vehicleShopKey, data.representativePedIndex or data.representativeVehicleIndex, shared.DISTANCE_TO_REPRESENTATIVE,
+            representative:getDistanceToPlayer(source)), "warning", Config.Debug))
+    end
+
+    return cb(vehicleShopData:generateShopMenu(data.representativeCategory, data.representativePedIndex or data.representativeVehicleIndex))
 end)
 
 ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, cb, data)
@@ -83,36 +31,27 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
 
     if not xPlayer or not data?.vehicleIndex or not data?.vehicleShopKey or not data?.vehicleCategory or not data?.purchaseAccount or not data?.vehicleProperties then return cb() end
 
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local playerCoords = xPlayer.getCoords()
-    local shopPreviewCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
+    local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
 
-    if #(vector3(playerCoords.x, playerCoords.y, playerCoords.z) - vector3(shopPreviewCoords.x, shopPreviewCoords.y, shopPreviewCoords.z)) > 3 then
-        CheatDetected(xPlayer.source)
-        return cb()
-    end
+    if not vehicleShopData then return cb(utility.cheatDetected(source)) end
 
-    local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
-    local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex]
+    if not vehicleShopData:isPlayerNearShopPreview(source) then return cb(utility.cheatDetected(source)) end
 
-    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then
-        CheatDetected(xPlayer.source)
-        return cb()
-    end
+    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.categories)
+    local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex] --[[@as cVehicle?]]
 
-    local spawnCoords = vehicleShopData.VehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
+    if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then return cb(utility.cheatDetected(source)) end
+
+    local spawnCoords = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
     local xVehicle = ESX.CreateVehicle({
         model = vehicleData.model,
         owner = xPlayer.getIdentifier(),
         properties = data.vehicleProperties
     }, spawnCoords, spawnCoords.w)
 
-    if not xVehicle then
-        ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true)
-        return cb()
-    end
+    if not xVehicle then return cb(ESX.Trace(("There was an issue in creating vehicle (%s) for player(%s) while purchasing!"):format(vehicleData.model, xPlayer.source), "error", true)) end
 
-    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, locale("purchase_transaction_info", vehicleData.name, vehicleShopData.Label, xVehicle.plate, ESX.Math.GroupDigits(vehicleData.price)))
+    xPlayer.removeAccountMoney(data.purchaseAccount, vehicleData.price, locale("purchase_transaction_info", vehicleData.name, vehicleShopData.label, xVehicle.plate, ESX.Math.GroupDigits(vehicleData.price)))
 
     return cb(xVehicle.netId)
 end)
@@ -128,8 +67,8 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, 
     local xVehicle = ESX.GetVehicle(playerVehicle)
     local vehicleData = ESX.GetVehicleData(xVehicle.model)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
-    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
+    local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
+    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.resellPercentage or 100) / 100)
     local contextOptions = {
         {
             title = locale("selling_vehicle", ("%s %s"):format(vehicleData?.make, vehicleData?.name)),
