@@ -44,7 +44,9 @@ function zone:__call(zoneKey, zoneLabel, blipData)
         blip = blipData
     }
 
-    return setmetatable(object, zone)
+    setmetatable(object, zone)
+
+    return object
 end
 
 return zone

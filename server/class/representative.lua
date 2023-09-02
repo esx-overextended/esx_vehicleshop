@@ -10,14 +10,14 @@ function representative:getCoords()
     return self.coords
 end
 
----@param coords vector4 | table
+---@param obj table
 ---@return representative
-function representative:__call(coords)
-    local object = {
-        coords = vector4(coords.x, coords.y, coords.z, coords.w or coords.heading)
-    }
+function representative:__call(obj)
+    local object = json.decode(json.encode(obj))
 
-    return setmetatable(object, representative)
+    setmetatable(object, representative)
+
+    return object
 end
 
 return representative

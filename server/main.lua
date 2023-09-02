@@ -1,148 +1,8 @@
-local vehicles, categories
+local records = lib.require("server.class.records") --[[@as records]]
 
-function RefreshVehiclesAndCategories()
-    vehicles = MySQL.query.await("SELECT * FROM vehicles")
-    categories = MySQL.query.await("SELECT * FROM vehicle_categories")
-    local generatedVehicles = ESX.GetVehicleData()
-    local validVehicles, validVehiclesCount = {}, 0
-
-    for i = 1, #vehicles do
-        local vehicleData = vehicles[i]
-
-        if not generatedVehicles[vehicleData?.model] then
-            ESX.Trace(
-                ("Vehicle (^5%s^7) with the model of (^1%s^7) is ^1NOT KNOWN^7 to the framework!\nEither it's an invalid model or has not been parsed/generated yet! Refer to the documentation(https://esx-overextended.github.io/es_extended/Commands/parseVehicles)\n")
-                :format(vehicleData?.name, vehicleData?.model), "warning", true)
-        else
-            validVehiclesCount += 1
-            validVehicles[validVehiclesCount] = vehicleData
-        end
-    end
-
-    vehicles = validVehicles
-end
-
-function GetVehiclesAndCategories()
-    return vehicles, categories
-end
-
----@param categoryName string
----@return string?
-function GetCategoryLabel(categoryName)
-    for i = 1, #categories do
-        local category = categories[i]
-
-        if category.name == categoryName then
-            return category.label
-        end
-    end
-end
-
----@param vehicleShopKey string
----@return table
-function GetVehiclesByCategoryForShop(vehicleShopKey)
-    local vehiclesByCategory = {}
-    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
-
-    if vehicleShopData then
-        local allVehicles, allCategories = GetVehiclesAndCategories()
-
-        if type(vehicleShopData.Categories) == "table" and next(vehicleShopData.Categories) then
-            for i = 1, #vehicleShopData.Categories do
-                for j = 1, #allCategories, 1 do
-                    if vehicleShopData.Categories[i] == allCategories[j].name then
-                        vehiclesByCategory[allCategories[j].name] = {}
-                        break
-                    end
-                end
-            end
-        else
-            for i = 1, #allCategories do
-                vehiclesByCategory[allCategories[i].name] = {}
-            end
-        end
-
-        for i = 1, #allVehicles do
-            local vehicleCategory = allVehicles[i].category
-
-            if vehiclesByCategory[vehicleCategory] then
-                vehiclesByCategory[vehicleCategory][#vehiclesByCategory[vehicleCategory] + 1] = allVehicles[i]
-            end
-        end
-
-        for _, v in pairs(vehiclesByCategory) do
-            table.sort(v, function(a, b)
-                return a.name < b.name
-            end)
-        end
-    end
-
-    return vehiclesByCategory
-end
-
----@param model string
----@return number?
-function GetVehiclePriceByModel(model)
-    for i = 1, #vehicles do
-        local vehicle = vehicles[i]
-
-        if vehicle.model == model then
-            return vehicle.price
-        end
-    end
-end
-
----@param model string
----@return table?
-function GetVehicleCategoryByModel(model)
-    for i = 1, #vehicles do
-        local vehicle = vehicles[i]
-
-        if vehicle.model == model then
-            for j = 1, #categories do
-                local category = categories[j]
-
-                if category.name == vehicle.category then
-                    return { name = category.name, category.label }
-                end
-            end
-        end
-    end
-end
-
----@param vehicleShopKey string
----@return number
-function GetRandomVehicleModelFromShop(vehicleShopKey)
-    local vehicleModel
-    local vehicleShopData = Config.VehicleShops[vehicleShopKey]
-
-    while not vehicleModel do
-        local found = false
-        local randomVehicle = vehicles[math.random(0, #vehicles)]
-
-        if type(vehicleShopData.Categories) == "table" and next(vehicleShopData.Categories) then
-            for i = 1, #vehicleShopData.Categories do
-                local category = vehicleShopData.Categories[i]
-
-                if randomVehicle?.category == category then
-                    found = true
-                    break
-                end
-            end
-        elseif randomVehicle then
-            found = true
-        end
-
-        if found then
-            vehicleModel = randomVehicle.model
-            break
-        end
-
-        Wait(0)
-    end
-
-    return vehicleModel
-end
+MySQL.ready(function()
+    records:refresh()
+end)
 
 ---@param source number
 ---@param vehicle number
@@ -171,7 +31,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     end
 
     local sellPointData = Config.SellPoints[sellPointIndex]
-    local vehicleCategory = GetVehicleCategoryByModel(xVehicle.model)
+    local vehicleCategory = records:getVehicleCategory(xVehicle.model)
 
     if sellPointData.Categories then
         local isCategoryValid = false
@@ -187,7 +47,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
             local authorizedCategories, authorizedCategoriesCount = {}, 0
 
             for i = 1, #sellPointData.Categories do
-                local categoryLabel = GetCategoryLabel(sellPointData.Categories[i])
+                local categoryLabel = records:getCategoryLabel(sellPointData.Categories[i])
 
                 if categoryLabel then
                     authorizedCategoriesCount += 1
@@ -210,7 +70,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
         return false
     end
 
-    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+    local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
 
     if not originalVehiclePrice then
         ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle_show_accepted") }, "error")
@@ -248,34 +108,7 @@ function MakeVehicleEmpty(vehicleEntity, maxNoSeats)
     return false
 end
 
-function DoesVehicleExistInShop(vehicleModel, shopkey)
-    local vehicleShopData = Config.VehicleShops[shopkey]
-    local shopCategories = vehicleShopData?.Categories
-
-    if not shopCategories then
-        return vehicleShopData and true or false
-    end
-
-    for i = 1, #vehicles do
-        local vehicle = vehicles[i]
-
-        if vehicle.model == vehicleModel then
-            for j = 1, #shopCategories do
-                if vehicle.category == shopCategories[j] then
-                    return true
-                end
-            end
-        end
-    end
-
-    return false
-end
-
 ---@param source string | number
 function CheatDetected(source)
     print(("[^1CHEATING^7] Player (^5%s^7) with the identifier of (^5%s^7) is detected ^1cheating^7!"):format(source, GetPlayerIdentifierByType(source --[[@as string]], "license")))
 end
-
-MySQL.ready(function()
-    RefreshVehiclesAndCategories()
-end)

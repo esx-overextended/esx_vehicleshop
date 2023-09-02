@@ -1,9 +1,18 @@
+local records = lib.require("server.class.records") --[[@as records]]
+local vehicleShop = lib.require("server.class.vehicleShop") --[[@as vehicleShop]]
+
 ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, cb, data)
     if not data?.vehicleShopKey or (not data?.representativePedIndex and not data?.representativeVehicleIndex) or not data?.currentDistance then return cb() end
 
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
+    local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
+
+    if not vehicleShopData then
+        CheatDetected(source)
+        return cb()
+    end
+
     local representativeCoords = vehicleShopData[data.representativeCategory]?[data.representativePedIndex or data.representativeVehicleIndex]?.Coords
     local distanceToRepresentative = representativeCoords and #(vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z) - playerCoords)
 
@@ -15,8 +24,8 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateShopMenu", function(source, 
 
     local menuOptions, menuOptionsCount = {}, 0
     local allVehicleData = ESX.GetVehicleData()
-    local _, allCategories = GetVehiclesAndCategories()
-    local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
+    local allCategories = records:getCategories()
+    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.Categories)
 
     for i = 1, #allCategories do
         local category = allCategories[i]
@@ -83,7 +92,13 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
 
     if not xPlayer or not data?.vehicleIndex or not data?.vehicleShopKey or not data?.vehicleCategory or not data?.purchaseAccount or not data?.vehicleProperties then return cb() end
 
-    local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
+    local vehicleShopData = vehicleShop(data.vehicleShopKey) --[[@as vehicleShop]]
+
+    if not vehicleShopData then
+        CheatDetected(source)
+        return cb()
+    end
+
     local playerCoords = xPlayer.getCoords()
     local shopPreviewCoords = vehicleShopData?.VehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
 
@@ -92,7 +107,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
         return cb()
     end
 
-    local vehiclesByCategory = GetVehiclesByCategoryForShop(data.vehicleShopKey)
+    local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.Categories)
     local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex]
 
     if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then
@@ -128,7 +143,7 @@ ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, 
     local xVehicle = ESX.GetVehicle(playerVehicle)
     local vehicleData = ESX.GetVehicleData(xVehicle.model)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+    local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
     local contextOptions = {
         {

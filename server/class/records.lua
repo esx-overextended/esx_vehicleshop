@@ -11,8 +11,11 @@
 ---@field vehicles cVehicle[]
 ---@field categories cCategory[]
 
+_G.vehicles = _G.vehicles or {} --[[@as cVehicle[] ]]
+_G.categories = _G.categories or {} --[[@as cCategory[] ]]
+
 ---@class records : cRecords
-local records = { vehicles = {} --[[@as cVehicle[] ]], categories = categories --[[@as cCategory[] ]] }
+local records = { vehicles = _G.vehicles, categories = _G.categories }
 
 function records:refresh()
     local dbVehicles = MySQL.query.await("SELECT * FROM vehicles")

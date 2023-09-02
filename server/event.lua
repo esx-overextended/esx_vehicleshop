@@ -1,3 +1,6 @@
+local records = lib.require("server.class.records") --[[@as records]]
+local vehicleShop = lib.require("server.class.vehicleShop") --[[@as vehicleShop]]
+
 RegisterServerEvent("esx_vehicleshop:sellVehicle", function(data)
     local source = source
 
@@ -12,7 +15,7 @@ RegisterServerEvent("esx_vehicleshop:sellVehicle", function(data)
     local xPlayer = ESX.GetPlayerFromId(source)
     local vehicleData = ESX.GetVehicleData(xVehicle.model)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local originalVehiclePrice = GetVehiclePriceByModel(xVehicle.model)
+    local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
     local resellPrice = math.floor(originalVehiclePrice * (sellPointData.ResellPercentage or 100) / 100)
 
     if not MakeVehicleEmpty(xVehicle.entity, vehicleData.seats) then return xPlayer?.showNotification and xPlayer.showNotification({ locale("vehicle_sell"), locale("sell_error") }, "error") end
@@ -28,7 +31,9 @@ end)
 local playersNearPoints = {}
 
 local enteredRepresentativePoint = function(_source, shopKey, representativeCategory, representativeIndex)
-    local vehicleShopData = Config.VehicleShops[shopKey]
+    local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
+
+    if not vehicleShopData then return CheatDetected(_source) end
 
     if not vehicleShopData then return ESX.Trace(("Player(%s) tried to enter Shop[%s] which doesn't exist!"):format(_source, shopKey), "error", true) end
     if not vehicleShopData[representativeCategory] then return ESX.Trace(("Player(%s) tried to enter Shop[%s][%s] which doesn't exist!"):format(_source, shopKey, representativeCategory), "error", true) end
@@ -85,7 +90,7 @@ local enteredRepresentativePoint = function(_source, shopKey, representativeCate
 
         if not entity then return end
     elseif representativeCategory == "RepresentativeVehicles" then
-        local vehicleModel = GetRandomVehicleModelFromShop(shopKey)
+        local vehicleModel = vehicleShopData:getRandomVehicleModel()
         entity = ESX.OneSync.SpawnVehicle(vehicleModel, vector3(representative.Coords.x, representative.Coords.y, representative.Coords.z), representative.Coords.w)
 
         if not entity then return end
@@ -112,7 +117,10 @@ local exitedRepresentativePoint = function(_source, shopKey, representativeCateg
 
     local playerPed = GetPlayerPed(_source)
     local playerCoords = GetEntityCoords(playerPed)
-    local vehicleShopData = Config.VehicleShops[shopKey]
+    local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
+
+    if not vehicleShopData then return CheatDetected(_source) end
+
     local representative = vehicleShopData[representativeCategory][representativeIndex]
     local representativeCoords = representative.Coords
     local playerDistToRepresentative = #(playerCoords - vector3(representativeCoords.x, representativeCoords.y, representativeCoords.z))
@@ -225,7 +233,10 @@ local changeVehicleRepresentative = function(_source, shopKey, representativeInd
 
     if not DoesVehicleExistInShop(vehicleModel, shopKey) then return CheatDetected(_source) end
 
-    local vehicleShopData = Config.VehicleShops[shopKey]
+    local vehicleShopData = vehicleShop(shopKey) --[[@as vehicleShop]]
+
+    if not vehicleShopData then return CheatDetected(_source) end
+
     local representative = vehicleShopData["RepresentativeVehicles"][representativeIndex]
 
     local entity = playersNearPoints[shopKey]["RepresentativeVehicles"]["Entities"][representativeIndex]
