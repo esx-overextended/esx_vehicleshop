@@ -177,7 +177,9 @@ function fn:onMenuClose()
     utility.freezeEntity(false, cache.ped, self.initialPedCoords)
 
     self.insideShop = false
-    self = nil
+    self = nil  -- removing instance of fn
+
+    return self -- hacky way to avoid lint errors (value assigned to variable 'self' is unused)
 end
 
 function OpenShopMenu(data)
