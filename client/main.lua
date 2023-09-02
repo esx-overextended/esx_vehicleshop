@@ -207,25 +207,19 @@ function OpenShopMenu(data)
             utility.freezeEntity(false, cache.ped, pedCoordsBeforeOpeningShopMenu)
 
             insideShop = false
-            onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
         end
 
         lib.registerMenu({
             id = "esx_vehicleshop:shopMenu",
             title = vehicleShopData?.label,
             options = menuOptions,
-            onSideScroll = function(...)
-                return onMenuChange(...)
-            end,
-            onSelected = function(...)
-                return onMenuChange(...)
-            end,
+            onSideScroll = onMenuChange,
+            onSelected = onMenuChange,
             onClose = function()
-                return onMenuClose()
+                onMenuClose()
+                onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
             end,
-        }, function(...)
-            return onMenuSelect(...)
-        end)
+        }, onMenuSelect)
 
         lib.showMenu("esx_vehicleshop:shopMenu")
     elseif data.representativeCategory == "representativeVehicles" then
