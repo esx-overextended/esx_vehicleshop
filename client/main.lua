@@ -213,13 +213,19 @@ function OpenShopMenu(data)
             id = "esx_vehicleshop:shopMenu",
             title = vehicleShopData?.label,
             options = menuOptions,
-            onSideScroll = onMenuChange,
-            onSelected = onMenuChange,
+            onSideScroll = function(...)
+                return onMenuChange(...)
+            end,
+            onSelected = function(...)
+                return onMenuChange(...)
+            end,
             onClose = function()
                 onMenuClose()
                 onMenuChange, onMenuChange, onMenuSelect = nil, nil, nil ---@diagnostic disable-line: cast-local-type
             end,
-        }, onMenuSelect)
+        }, function(...)
+            return onMenuSelect(...)
+        end)
 
         lib.showMenu("esx_vehicleshop:shopMenu")
     elseif data.representativeCategory == "representativeVehicles" then
