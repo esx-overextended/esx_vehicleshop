@@ -9,8 +9,9 @@
 local vehicleShop = {}
 vehicleShop.__index = vehicleShop
 
----@type records
-local records = lib.require("server.class.records")
+local shared = lib.require("shared.shared") --[[@as shared]]
+local records = lib.require("server.class.records") --[[@as records]]
+local representative = lib.require("server.class.representative") --[[@as representative]]
 
 ---@return string[]?
 function vehicleShop:getCategories()
@@ -64,6 +65,92 @@ function vehicleShop:getRandomVehicleModel()
     return vehicleModel
 end
 
+---@param representativeCategory string
+---@param representativeIndex number
+---@return representative?
+function vehicleShop:getRepresentative(representativeCategory, representativeIndex)
+    return representative(self[representativeCategory]?[representativeIndex])
+end
+
+---@param playerId number
+---@return boolean
+function vehicleShop:isPlayerNearShopPreview(playerId)
+    local playerPed = GetPlayerPed(playerId)
+    local playerCoords = GetEntityCoords(playerPed)
+
+    return #(playerCoords - vector3(self.vehiclePreviewCoords.x, self.vehiclePreviewCoords.y, self.vehiclePreviewCoords.z)) <= shared.DISTANCE_TO_VEHICLE_PREVIEW
+end
+
+---@param representativeCategory "representativePeds" | "representativeVehicles"
+---@param representativeIndex? number
+---@return table
+function vehicleShop:generateShopMenu(representativeCategory, representativeIndex)
+    local menuOptions, menuOptionsCount = {}, 0
+    local allVehicleData = ESX.GetVehicleData()
+    local allCategories = records:getCategories()
+    local vehiclesByCategory = records:getVehiclesByCategory(self.categories)
+
+    for i = 1, #allCategories do
+        local category = allCategories[i]
+
+        if vehiclesByCategory[category.name] then
+            local categoryVehicles = vehiclesByCategory[category.name]
+            local options, optionsCount = {}, 0
+
+            for j = 1, #categoryVehicles do
+                local vehicle = categoryVehicles[j]
+
+                if representativeCategory == "representativePeds" then
+                    optionsCount += 1
+                    options[optionsCount] = { -- menu options to show for peds
+                        label = vehicle.name,
+                        value = vehicle.model,
+                        price = vehicle.price,
+                        category = category.name,
+                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price))
+                    }
+                elseif representativeCategory == "representativeVehicles" then
+                    optionsCount += 1
+                    options[optionsCount] = { -- context menu options to show for vehicles
+                        title = vehicle.name,
+                        model = vehicle.model,
+                        price = vehicle.price,
+                        category = category.name,
+                        categoryLabel = category.label,
+                        description = locale("vehicle_price", ESX.Math.GroupDigits(vehicle.price)),
+                        image = allVehicleData[vehicle.model]?.image,
+                        serverEvent = "esx_vehicleshop:changeVehicleRepresentative",
+                        args = {
+                            vehicleShopKey = self.key,
+                            representativeCategory = representativeCategory,
+                            representativeVehicleIndex = representativeIndex,
+                            vehicleModel = vehicle.model
+                        }
+                    }
+                end
+            end
+
+            if representativeCategory == "representativePeds" then
+                menuOptionsCount += 1
+                menuOptions[menuOptionsCount] = {
+                    label = category.name,
+                    values = options
+                }
+            elseif representativeCategory == "representativeVehicles" then
+                menuOptionsCount += 1
+                menuOptions[menuOptionsCount] = {
+                    title = category.label,
+                    args = { subMenuOptions = options },
+                    menu = ("esx_vehicleshop:shopMenu_%s"):format(category.name),
+                    arrow = true
+                }
+            end
+        end
+    end
+
+    return menuOptions
+end
+
 ---@type zone
 local zone = lib.require("server.class.zone")
 
@@ -80,8 +167,8 @@ return setmetatable({}, {
         object.categories = vehicleShopData.categories
         object.representativePeds = vehicleShopData.representativePeds
         object.representativeVehicles = vehicleShopData.representativeVehicles
-        object.vehiclePreviewCoords = vehicleShopData.vehiclePreviewCoords
-        object.vehicleSpawnCoordsAfterPurchase = vehicleShopData.vehicleSpawnCoordsAfterPurchase
+        object.vehiclePreviewCoords = vehicleShopData.vehiclePreviewCoords or Config.DefaultVehiclePreviewCoords
+        object.vehicleSpawnCoordsAfterPurchase = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
 
         setmetatable(object, vehicleShop)
 

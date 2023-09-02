@@ -37,7 +37,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
         local isCategoryValid = false
 
         for i = 1, #sellPointData.categories do
-            if sellPointData.categories[i] == vehicleCategory?.name then
+            if sellPointData.categories[i] == vehicleCategory then
                 isCategoryValid = true
                 break
             end

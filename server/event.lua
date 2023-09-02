@@ -235,7 +235,9 @@ local changeVehicleRepresentative = function(_source, shopKey, representativeInd
 
     if not vehicleShopData or not vehicleShopData:hasVehicle(vehicleModel) then return CheatDetected(_source) end
 
-    local representative = vehicleShopData["representativeVehicles"][representativeIndex]
+    local representative = vehicleShopData:getRepresentative("representativeVehicles", representativeIndex)
+
+    if not representative then return CheatDetected(_source) end
 
     local entity = playersNearPoints[shopKey]["representativeVehicles"]["Entities"][representativeIndex]
     local _type = type(entity)

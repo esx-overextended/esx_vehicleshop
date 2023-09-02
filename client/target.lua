@@ -1,5 +1,7 @@
 Target = {}
 
+local shared = lib.require("shared.shared") --[[@as shared]]
+
 function Target.addNetId(netId, data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
     local optionId = ("%s:shop[%s][%s][%s]"):format(cache.resource, data.vehicleShopKey, data.representativeCategory, data.representativeIndex)
@@ -15,7 +17,7 @@ function Target.addNetId(netId, data)
             name = optionId,
             label = locale("browse_shop_catalog", vehicleShopData?.label),
             icon = "fa-solid fa-shop",
-            distance = 3,
+            distance = shared.DISTANCE_TO_REPRESENTATIVE,
             onSelect = function()
                 local representativeCoords = vehicleShopData[data.representativeCategory][data.representativeIndex].coords
                 data.currentDistance = #(cache.coords - vector3(representativeCoords?.x, representativeCoords?.y, representativeCoords?.z))
@@ -43,7 +45,7 @@ function Target.addEntity(entity, data)
             name = optionId,
             label = locale("browse_shop_catalog", vehicleShopData?.label),
             icon = "fa-solid fa-shop",
-            distance = 3,
+            distance = shared.DISTANCE_TO_REPRESENTATIVE,
             onSelect = function()
                 local representativeCoords = vehicleShopData[data.representativeCategory][data.representativeIndex].coords
                 data.currentDistance = #(cache.coords - vector3(representativeCoords?.x, representativeCoords?.y, representativeCoords?.z))

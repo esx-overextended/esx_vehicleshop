@@ -12,7 +12,7 @@ end
 local function vehicleGenerator(state, coords, range)
     if not x_configResourceState then return end
 
-    x_config:generateVehiclesInArea(state, coords, range)
+    x_config:generateVehiclesInArea(state, coords, range) ---@diagnostic disable-line: need-check-nil
 end
 
 ---Enables/Disables vehicles from generating in vehicle preview areas
