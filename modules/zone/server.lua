@@ -36,9 +36,9 @@ return setmetatable({}, {
     __index = zone,
     __call = function(_, zoneKey, zoneLabel, blipData)
         local object = {
-            key = zoneKey,
+            key   = zoneKey,
             label = zoneLabel,
-            blip = blipData
+            blip  = blipData
         }
 
         setmetatable(object, zone)

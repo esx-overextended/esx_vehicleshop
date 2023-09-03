@@ -1,12 +1,11 @@
-lib.require("modules.x-config.client")
 local utility = lib.require("modules.utility.client") --[[@as utility_client]]
 
 ---@class fn
 ---@field onMenuChange function
 
 ---@class fn
-local fn = {}
-fn.__index = fn
+local fn      = {}
+fn.__index    = fn
 
 function fn:onMenuChange(selectedIndex, selectedScrollIndex)
     while self.isSpawning do Wait(0) end
@@ -67,14 +66,14 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
         local canUseThisAccount = account.money >= selectedVehicle.price
 
         options[#options + 1] = {
-            label = locale("purchase_with", account.label),
-            icon = utility.getAccountIcon(account.name),
-            iconColor = canUseThisAccount and "green" or "red",
-            close = false,
-            accountName = account.name,
-            accountLabel = account.label,
+            label             = locale("purchase_with", account.label),
+            icon              = utility.getAccountIcon(account.name),
+            iconColor         = canUseThisAccount and "green" or "red",
+            close             = false,
+            accountName       = account.name,
+            accountLabel      = account.label,
             canUseThisAccount = canUseThisAccount,
-            description = locale("vehicle_price", selectedVehicle.price)
+            description       = locale("vehicle_price", selectedVehicle.price)
         }
 
         ::skipLoop::
@@ -87,10 +86,10 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
         onClose = function() lib.showMenu("esx_vehicleshop:shopMenu", selectedIndex) end
     }, function(subMenuSelectedIndex)
         if subMenuSelectedIndex == 1 then
-            local vehicleCustomPrimaryColor = GetIsVehiclePrimaryColourCustom(self.spawnedVehicle) and utility.rgbToHex(GetVehicleCustomPrimaryColour(self.spawnedVehicle)) or nil
+            local vehicleCustomPrimaryColor   = GetIsVehiclePrimaryColourCustom(self.spawnedVehicle) and utility.rgbToHex(GetVehicleCustomPrimaryColour(self.spawnedVehicle)) or nil
             local vehicleCustomSecondaryColor = GetIsVehicleSecondaryColourCustom(self.spawnedVehicle) and utility.rgbToHex(GetVehicleCustomSecondaryColour(self.spawnedVehicle)) or nil
 
-            local input = lib.inputDialog(selectedVehicleLabel, {
+            local input                       = lib.inputDialog(selectedVehicleLabel, {
                 { type = "color", label = locale("vehicle_primary_color"),   default = vehicleCustomPrimaryColor,   format = "hex", required = true },
                 { type = "color", label = locale("vehicle_secondary_color"), default = vehicleCustomSecondaryColor, format = "hex", required = true }
             })
@@ -112,10 +111,10 @@ function fn:onMenuSelect(selectedIndex, selectedScrollIndex)
         lib.hideMenu(false)
 
         local alertDialog = lib.alertDialog({
-            header = ("**%s**" --[[making it bold]]):format(locale("purchase_confirmation_header", selectedVehicleLabel)),
-            content = locale("purchase_confirmation_content", selectedVehicleLabel, selectedVehicle.price, optionData?.accountLabel),
+            header   = ("**%s**" --[[making it bold]]):format(locale("purchase_confirmation_header", selectedVehicleLabel)),
+            content  = locale("purchase_confirmation_content", selectedVehicleLabel, selectedVehicle.price, optionData?.accountLabel),
             centered = true,
-            cancel = true
+            cancel   = true
         })
 
         lib.showMenu(currentMenu, subMenuSelectedIndex)
@@ -179,7 +178,7 @@ function fn:onMenuClose()
     self.insideShop = false
     self = nil  -- removing instance of fn
 
-    return self -- hacky way to prevent lint error of value assigned to variable 'self' is unused
+    return self -- hacky way to prevent lint error of "value assigned to variable 'self' is unused"
 end
 
 function OpenShopMenu(data)
@@ -196,13 +195,13 @@ function OpenShopMenu(data)
         local initialPedCoords = cache.coords
 
         local functions = setmetatable({
-            insideShop = true,
-            isSpawning = false,
-            spawnedVehicle = nil,
-            vehicleShopKey = data.vehicleShopKey,
-            menuOptions = menuOptions,
-            collisionCoords = collisionCoords,
-            vehicleShopData = vehicleShopData,
+            insideShop       = true,
+            isSpawning       = false,
+            spawnedVehicle   = nil,
+            vehicleShopKey   = data.vehicleShopKey,
+            menuOptions      = menuOptions,
+            collisionCoords  = collisionCoords,
+            vehicleShopData  = vehicleShopData,
             initialPedCoords = initialPedCoords
         }, fn) --[[@as fn]]
 
@@ -228,16 +227,16 @@ function OpenShopMenu(data)
         end)
 
         lib.registerMenu({
-            id = "esx_vehicleshop:shopMenu",
-            title = vehicleShopData?.label,
-            options = menuOptions,
+            id           = "esx_vehicleshop:shopMenu",
+            title        = vehicleShopData?.label,
+            options      = menuOptions,
             onSideScroll = function(...)
                 return functions:onMenuChange(...)
             end,
-            onSelected = function(...)
+            onSelected   = function(...)
                 return functions:onMenuChange(...)
             end,
-            onClose = function()
+            onClose      = function()
                 return functions:onMenuClose()
             end,
         }, function(...)
@@ -256,21 +255,21 @@ function OpenShopMenu(data)
                     local _option = vehicleOptions[j]
 
                     lib.registerContext({
-                        id = ("esx_vehicleshop:shopMenu_%s"):format(_option.category),
-                        title = _option.categoryLabel,
-                        menu = "esx_vehicleshop:shopMenu",
+                        id       = ("esx_vehicleshop:shopMenu_%s"):format(_option.category),
+                        title    = _option.categoryLabel,
+                        menu     = "esx_vehicleshop:shopMenu",
                         canClose = true,
-                        options = vehicleOptions
+                        options  = vehicleOptions
                     })
                 end
             end
         end
 
         lib.registerContext({
-            id = "esx_vehicleshop:shopMenu",
-            title = vehicleShopData?.label,
+            id       = "esx_vehicleshop:shopMenu",
+            title    = vehicleShopData?.label,
             canClose = true,
-            options = menuOptions
+            options  = menuOptions
         })
 
         lib.showContext("esx_vehicleshop:shopMenu")
@@ -285,8 +284,8 @@ function OpenSellMenu(data)
     if type(contextOptions) ~= "table" then return end
 
     lib.registerContext({
-        id = "esx_vehicleshop:sellMenu",
-        title = locale("vehicle_sell"),
+        id      = "esx_vehicleshop:sellMenu",
+        title   = locale("vehicle_sell"),
         options = contextOptions
     })
 
@@ -300,3 +299,5 @@ end)
 
 lib.require("modules.zone.client")
 lib.require("modules.representative.client")
+
+lib.require("modules.x-config.client")

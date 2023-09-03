@@ -11,7 +11,7 @@
 ---@field vehicles cVehicle[]
 ---@field categories cCategory[]
 
-_G.vehicles = _G.vehicles or {} --[[@as cVehicle[] ]]
+_G.vehicles   = _G.vehicles or {} --[[@as cVehicle[] ]]
 _G.categories = _G.categories or {} --[[@as cCategory[] ]]
 
 ---@class records : cRecords

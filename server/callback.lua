@@ -38,14 +38,14 @@ ESX.RegisterServerCallback("esx_vehicleshop:purchaseVehicle", function(source, c
     if not vehicleShopData:isPlayerNearShopPreview(source) then return cb(utility.cheatDetected(source)) end
 
     local vehiclesByCategory = records:getVehiclesByCategory(vehicleShopData.categories)
-    local vehicleData = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex] --[[@as cVehicle?]]
+    local vehicleData        = vehiclesByCategory[data.vehicleCategory]?[data.vehicleIndex] --[[@as cVehicle?]]
 
     if not vehicleData or data.vehicleProperties.model ~= joaat(vehicleData.model) or xPlayer.getAccount(data.purchaseAccount)?.money < vehicleData.price then return cb(utility.cheatDetected(source)) end
 
     local spawnCoords = vehicleShopData.vehicleSpawnCoordsAfterPurchase or Config.DefaultVehicleSpawnCoordsAfterPurchase
     local xVehicle = ESX.CreateVehicle({
-        model = vehicleData.model,
-        owner = xPlayer.getIdentifier(),
+        model      = vehicleData.model,
+        owner      = xPlayer.getIdentifier(),
         properties = data.vehicleProperties
     }, spawnCoords, spawnCoords.w)
 
@@ -59,17 +59,17 @@ end)
 ESX.RegisterServerCallback("esx_vehicleshop:generateSellMenu", function(source, cb, data)
     if not data?.sellPointIndex then return cb() end
 
-    local playerPed = GetPlayerPed(source)
+    local playerPed     = GetPlayerPed(source)
     local playerVehicle = GetVehiclePedIsIn(playerPed, false)
 
     if not CanPlayerSellVehicle(source, playerVehicle, data.sellPointIndex, data.distance) then return cb() end
 
-    local xVehicle = ESX.GetVehicle(playerVehicle)
-    local vehicleData = ESX.GetVehicleData(xVehicle.model)
-    local sellPointData = Config.SellPoints[data.sellPointIndex]
+    local xVehicle             = ESX.GetVehicle(playerVehicle)
+    local vehicleData          = ESX.GetVehicleData(xVehicle.model)
+    local sellPointData        = Config.SellPoints[data.sellPointIndex]
     local originalVehiclePrice = records:getVehiclePrice(xVehicle.model)
-    local resellPrice = math.floor(originalVehiclePrice * (sellPointData.resellPercentage or 100) / 100)
-    local contextOptions = {
+    local resellPrice          = math.floor(originalVehiclePrice * (sellPointData.resellPercentage or 100) / 100)
+    local contextOptions       = {
         {
             title = locale("selling_vehicle", ("%s %s"):format(vehicleData?.make, vehicleData?.name)),
             icon = "fa-solid fa-square-poll-horizontal",

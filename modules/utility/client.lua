@@ -91,6 +91,7 @@ function utility.hexToRGB(hex)
     local r = tonumber(hex:sub(1, 2), 16) or 0
     local g = tonumber(hex:sub(3, 4), 16) or 0
     local b = tonumber(hex:sub(5, 6), 16) or 0
+
     return r, g, b
 end
 

@@ -25,6 +25,5 @@ AddStateBagChangeHandler("esx_vehicleshop:handleRepresentative", "", function(ba
         SetVehicleCanBeUsedByFleeingPeds(entity, false)
     end
 
-    -- target.addNetId(netId, value) -- Should works but sometimes isn't working correctly! Removes the target option after couple of seconds
     target.addEntity(entity, value) -- Same code as above but works...
 end)

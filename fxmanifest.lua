@@ -29,5 +29,5 @@ client_scripts {
 
 files {
     "locales/*.json",
-    "modules/**/*.lua"
+    "modules/**/*client*.lua"
 }

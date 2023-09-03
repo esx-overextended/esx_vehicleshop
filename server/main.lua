@@ -18,7 +18,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
     end
 
     local xVehicle = ESX.GetVehicle(vehicle)
-    local xPlayer = ESX.GetPlayerFromId(source)
+    local xPlayer  = ESX.GetPlayerFromId(source)
 
     if not xVehicle then
         ESX.ShowNotification(source, { locale("vehicle_sell"), locale("cannot_sell_vehicle") }, "error")
@@ -30,7 +30,7 @@ function CanPlayerSellVehicle(source, vehicle, sellPointIndex, distance)
         return false
     end
 
-    local sellPointData = Config.SellPoints[sellPointIndex]
+    local sellPointData   = Config.SellPoints[sellPointIndex]
     local vehicleCategory = records:getVehicleCategory(xVehicle.model)
 
     if sellPointData.categories then

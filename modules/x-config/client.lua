@@ -1,7 +1,7 @@
 local x_configResourceName, x_configResourceState, x_config = "x-config", nil, nil
 
 local function refreshXConfig()
-    x_config = exports[x_configResourceName]
+    x_config              = exports[x_configResourceName]
     x_configResourceState = GetResourceState(x_configResourceName):find("start") ~= nil
 end
 

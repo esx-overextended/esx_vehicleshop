@@ -2,14 +2,14 @@ local vehicleShopZones, vehicleSellPoints = {}, {}
 
 local function createBlip(zoneKey)
     local isVehicleShop = type(zoneKey) == "string" and true or false
-    local data = isVehicleShop and Config.VehicleShops[zoneKey] or Config.SellPoints[zoneKey]
+    local data          = isVehicleShop and Config.VehicleShops[zoneKey] or Config.SellPoints[zoneKey]
 
     if not data or not data.blip or not data.blip.active then return end
 
-    local blipData = data.blip
+    local blipData   = data.blip
     local blipCoords = blipData.coords or data.marker?.coords
-    local blipName = ("%s_%s"):format(isVehicleShop and "vehicleshop" or "sellpoint", zoneKey)
-    local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
+    local blipName   = ("%s_%s"):format(isVehicleShop and "vehicleshop" or "sellpoint", zoneKey)
+    local blip       = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
 
     SetBlipSprite(blip, blipData.type)
     SetBlipScale(blip, blipData.size)
@@ -28,13 +28,15 @@ end
 
 local function onVehicleShopRepresentativeEnter(data)
     local representativeCategory = data?.representativeCategory:gsub("^%u", string.lower)
-    local representativeIndex = data.representativePedIndex or data.representativeVehicleIndex
+    local representativeIndex    = data.representativePedIndex or data.representativeVehicleIndex
 
     if vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange then return end
 
     vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = true
 
-    ESX.Trace("entered buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
+    if Config.Debug then
+        ESX.Trace("entered buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", true)
+    end
 
     configureZone("enter", data)
 end
@@ -47,14 +49,16 @@ local function onVehicleShopRepresentativeExit(data)
 
     vehicleShopZones[data.vehicleShopKey][representativeCategory][representativeIndex].inRange = false
 
-    ESX.Trace("exited buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", Config.Debug)
+    if Config.Debug then
+        ESX.Trace("exited buy point index of" .. representativeIndex .. "of vehicle shop zone" .. data.vehicleShopKey, "trace", true)
+    end
 
     configureZone("exit", data)
 end
 
 local function onVehicleShopRepresentativeInside(data)
     local vehicleShopData = Config.VehicleShops[data.vehicleShopKey]
-    local representative = vehicleShopData[data?.representativeCategory][data.representativePedIndex or data.representativeVehicleIndex]
+    local representative  = vehicleShopData[data?.representativeCategory][data.representativePedIndex or data.representativeVehicleIndex]
 
     if not representative.marker.drawDistance or data.currentDistance <= representative.marker.drawDistance then
         DrawMarker(
@@ -95,18 +99,18 @@ local function setupVehicleShop(vehicleShopKey)
 
         for i = 1, #vehicleShopData.representativePeds do
             local representativePedData = vehicleShopData.representativePeds[i]
-            local point = lib.points.new({
-                coords = representativePedData.coords,
-                distance = representativePedData.distance,
-                onEnter = onVehicleShopRepresentativeEnter,
-                onExit = onVehicleShopRepresentativeExit,
-                nearby = representativePedData.marker and onVehicleShopRepresentativeInside,
-                vehicleShopKey = vehicleShopKey,
+            local point                 = lib.points.new({
+                coords                 = representativePedData.coords,
+                distance               = representativePedData.distance,
+                onEnter                = onVehicleShopRepresentativeEnter,
+                onExit                 = onVehicleShopRepresentativeExit,
+                nearby                 = representativePedData.marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey         = vehicleShopKey,
                 representativeCategory = "representativePeds",
                 representativePedIndex = i
             })
 
-            representativePeds[i] = { point = point, inRange = false, pedEntity = nil }
+            representativePeds[i]       = { point = point, inRange = false, pedEntity = nil }
         end
     end
 
@@ -115,18 +119,18 @@ local function setupVehicleShop(vehicleShopKey)
 
         for i = 1, #vehicleShopData.representativeVehicles do
             local representativeVehicleData = vehicleShopData.representativeVehicles[i]
-            local point = lib.points.new({
-                coords = representativeVehicleData.coords,
-                distance = representativeVehicleData.distance,
-                onEnter = onVehicleShopRepresentativeEnter,
-                onExit = onVehicleShopRepresentativeExit,
-                nearby = representativeVehicleData.marker and onVehicleShopRepresentativeInside,
-                vehicleShopKey = vehicleShopKey,
-                representativeCategory = "representativeVehicles",
+            local point                     = lib.points.new({
+                coords                     = representativeVehicleData.coords,
+                distance                   = representativeVehicleData.distance,
+                onEnter                    = onVehicleShopRepresentativeEnter,
+                onExit                     = onVehicleShopRepresentativeExit,
+                nearby                     = representativeVehicleData.marker and onVehicleShopRepresentativeInside,
+                vehicleShopKey             = vehicleShopKey,
+                representativeCategory     = "representativeVehicles",
                 representativeVehicleIndex = i
             })
 
-            representativeVehicles[i] = { point = point, inRange = false, vehicleEntity = nil }
+            representativeVehicles[i]       = { point = point, inRange = false, vehicleEntity = nil }
         end
     end
 
@@ -155,7 +159,7 @@ end
 
 local function onSellPointEnter(data)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local markerData = sellPointData?.marker
+    local markerData    = sellPointData?.marker
     local radius
 
     for _, value in pairs(markerData.size) do
@@ -165,12 +169,12 @@ local function onSellPointEnter(data)
     end
 
     local markerSphere = lib.zones.sphere({
-        coords = markerData.coords,
-        radius = radius,
-        onEnter = onSellPointMarkerEnter,
-        onExit = onSellPointMarkerExit,
-        inside = onSellPointMarkerInside,
-        debug = Config.Debug,
+        coords         = markerData.coords,
+        radius         = radius,
+        onEnter        = onSellPointMarkerEnter,
+        onExit         = onSellPointMarkerExit,
+        inside         = onSellPointMarkerInside,
+        debug          = Config.Debug,
         sellPointIndex = data.sellPointIndex
     })
 
@@ -186,7 +190,7 @@ end
 
 local function onSellPointInside(data)
     local sellPointData = Config.SellPoints[data.sellPointIndex]
-    local markerData = sellPointData?.marker
+    local markerData    = sellPointData?.marker
 
     if not markerData.drawDistance or data.currentDistance <= markerData.drawDistance then
         DrawMarker(
@@ -220,16 +224,16 @@ end
 
 local function setupSellPoint(sellPointIndex)
     local sellPointData = Config.SellPoints[sellPointIndex]
-    local markerData = sellPointData?.marker
+    local markerData    = sellPointData?.marker
 
     if type(markerData) ~= "table" then return end
 
     local point = lib.points.new({
-        coords = markerData.coords,
-        distance = markerData.drawDistance,
-        onEnter = onSellPointEnter,
-        onExit = onSellPointExit,
-        nearby = onSellPointInside,
+        coords         = markerData.coords,
+        distance       = markerData.drawDistance,
+        onEnter        = onSellPointEnter,
+        onExit         = onSellPointExit,
+        nearby         = onSellPointInside,
         sellPointIndex = sellPointIndex
     })
 
