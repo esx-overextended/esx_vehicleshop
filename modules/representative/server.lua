@@ -19,7 +19,7 @@ end
 ---@param playerId number
 ---@return boolean
 function representative:isPlayerNearby(playerId)
-    return self:getDistanceToPlayer(playerId) <= shared.DISTANCE_TO_REPRESENTATIVE
+    return self:getDistanceToPlayer(playerId) <= shared.DISTANCE_TO_REPRESENTATIVE + 2
 end
 
 return setmetatable({}, {
